@@ -1,0 +1,16 @@
+<div class="container text-center mt-5">
+    <h1 class="display-3 text-danger">403</h1>
+    <h2 class="mb-4">Acesso Negado</h2>
+
+    <?php if ($flash = \App\Core\Sessao::flash()): ?>
+        <div class="alert alert-<?= $flash['tipo'] ?>">
+            <?= $flash['mensagem'] ?>
+        </div>
+    <?php endif; ?>
+
+    <p class="lead">
+        Não tem permissão para aceder a esta área do sistema.
+    </p>
+
+    <a href="/" class="btn btn-primary mt-3">Voltar ao início</a>
+</div>

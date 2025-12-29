@@ -1,0 +1,49 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Novo Perfil</h1>
+
+    <form method="post" action="{{ url('/perfis/store') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+        <div class="mb-3">
+            <label>Nome</label>
+            <input type="text" name="nome" class="form-control">
+            {% if errors.nome %}
+                <small class="text-danger">{{ errors.nome[0] }}</small>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label>Descrição</label>
+            <textarea name="descricao" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Estado</label>
+            <select name="estado" class="form-select">
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Permissões</label>
+            <div class="row">
+                {% for perm in permissoes %}
+                <div class="col-md-4">
+                    <label>
+                        <input type="checkbox" name="permissoes[]" value="{{ perm.id }}">
+                        {{ perm.chave }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button class="btn btn-primary">Guardar</button>
+        <a href="{{ url('/perfis') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

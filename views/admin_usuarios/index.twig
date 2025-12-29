@@ -1,0 +1,88 @@
+{% extends "base.twig" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{{ titulo }}</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control" placeholder="Pesquisar nome ou email" value="{{ pesquisa }}">
+            </div>
+
+            <div class="col-md-3">
+                <select name="perfil" class="form-select">
+                    <option value="">Todos os perfis</option>
+                    {% for p in perfis %}
+                        <option value="{{ p.id }}" {% if perfil == p.id %}selected{% endif %}>{{ p.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select name="estado" class="form-select">
+                    <option value="">Todos os estados</option>
+                    <option value="1" {% if estado == '1' %}selected{% endif %}>Ativo</option>
+                    <option value="0" {% if estado == '0' %}selected{% endif %}>Inativo</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-3">
+    <a href="/admin/utilizadores/criar" class="btn btn-success">Criar novo utilizador</a>
+</div>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Perfil</th>
+            <th>Estado</th>
+            <th>Último login</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in utilizadores %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.nome }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.perfil_nome ?? '—' }}</td>
+            <td>
+                {% if u.estado %}
+                    <span class="badge bg-success">Ativo</span>
+                {% else %}
+                    <span class="badge bg-secondary">Inativo</span>
+                {% endif %}
+            </td>
+            <td>{{ u.ultimo_login ?? '—' }}</td>
+            <td>
+                <a href="/admin/utilizadores/editar/{{ u.id }}" class="btn btn-sm btn-warning">Editar</a>
+                <a href="/admin/utilizadores/permissoes/{{ u.id }}" class="btn btn-sm btn-info">Permissões</a>
+                <a href="/admin/utilizadores/logs/{{ u.id }}" class="btn btn-sm btn-secondary">Logs</a>
+
+                {% if u.id != 1 %}
+                <form method="post" action="/admin/utilizadores/eliminar/{{ u.id }}" class="d-inline"
+                      onsubmit="return confirm('Tem a certeza que deseja eliminar este utilizador?')">
+                    <button class="btn btn-sm btn-danger">Eliminar</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% include "partials/paginacao.twig" %}
+{% endblock %}

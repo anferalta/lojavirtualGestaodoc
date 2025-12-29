@@ -1,0 +1,37 @@
+{% extends "base.twig" %}
+
+{% block title %}Criar Utilizador{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Criar Utilizador</h1>
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Nome</label>
+        <input type="text" name="nome" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Senha</label>
+        <input type="password" name="senha" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Perfil</label>
+        <select name="perfil_id" class="form-select">
+            <option value="">Nenhum</option>
+            {% for p in perfis %}
+                <option value="{{ p.id }}">{{ p.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button class="btn btn-success">Criar</button>
+    <a href="/admin/utilizadores" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.twig" %}
+
+{% block title %}Perfis{% endblock %}
+
+{% block content %}
+<h1 class="mb-3">Perfis</h1>
+
+<a href="/perfis/criar" class="btn btn-primary mb-3">Novo perfil</a>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nome</th>
+      <th>Descrição</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in perfis %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>{{ p.nome }}</td>
+      <td>{{ p.descricao }}</td>
+      <td>
+        <a href="/perfis/{{ p.id }}/permissoes" class="btn btn-sm btn-warning">Permissões</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

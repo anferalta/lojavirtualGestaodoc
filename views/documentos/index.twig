@@ -1,0 +1,20 @@
+{% extends "layout.twig" %}
+
+{% block title %}Documentos{% endblock %}
+
+{% block content %}
+<h1>Documentos</h1>
+
+<a href="{{ url('/documentos/upload') }}" class="btn-primary">Novo Documento</a>
+
+{% include 'components/table.twig' with {
+    headers: ['ID', 'Título', 'Tipo', 'Tamanho', 'Criado em', 'Ações'],
+    columns: ['id', 'titulo', 'tipo', 'tamanho', 'criado_em', '__acoes'],
+    rows: documentos
+} %}
+
+{% include 'components/pagination.twig' with {
+    pagination: pagination,
+    base_url: '/documentos'
+} %}
+{% endblock %}

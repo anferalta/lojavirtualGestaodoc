@@ -1,0 +1,25 @@
+{% extends "layout-painel.twig" %}
+
+{% block title %}Segurança da Conta{% endblock %}
+
+{% block content %}
+<h1>Segurança da Conta</h1>
+
+<div class="card">
+    <h3>Autenticação de 2 Fatores (2FA)</h3>
+
+    {% if user.two_factor_ativo %}
+        <p>O 2FA está <strong>ativado</strong>.</p>
+
+        <form action="{{ url('/painel/seguranca/desativar') }}" method="post">
+            <button class="btn-danger">Desativar 2FA</button>
+        </form>
+    {% else %}
+        <p>O 2FA está <strong>desativado</strong>.</p>
+
+        <form action="{{ url('/painel/seguranca/ativar') }}" method="post">
+            <button class="btn-primary">Ativar 2FA</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteBase /
+
+# Permitir assets estáticos
+RewriteCond %{REQUEST_URI} ^/assets/
+RewriteRule .* - [L]
+
+# Redirecionar tudo para index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]

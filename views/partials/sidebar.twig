@@ -1,0 +1,43 @@
+<aside class="bg-dark text-white p-3" style="width: 240px; min-height: 100vh;">
+    <h5 class="mb-4">Documental</h5>
+
+    <p class="small mb-2">Olá, {{ usuario_nome|default('Utilizador') }}</p>
+
+    <ul class="nav flex-column">
+        <li class="nav-item mb-1">
+            <a href="{{ url('/painel') }}" class="nav-link text-white">Painel</a>
+        </li>
+
+        <li class="nav-item mb-1">
+            <a href="{{ url('/documentos') }}" class="nav-link text-white">Documentos</a>
+        </li>
+
+        {% if can('utilizadores.ver') %}
+        <li class="nav-item mb-1">
+            <a href="{{ url('/utilizadores') }}" class="nav-link text-white">Utilizadores</a>
+        </li>
+        {% endif %}
+
+        {% if can('perfis.ver') %}
+        <li class="nav-item mb-1">
+            <a href="{{ url('/perfis') }}" class="nav-link text-white">Perfis</a>
+        </li>
+        {% endif %}
+
+        {% if can('permissoes.ver') %}
+        <li class="nav-item mb-1">
+            <a href="{{ url('/permissoes') }}" class="nav-link text-white">Permissões</a>
+        </li>
+        {% endif %}
+
+        {% if can('logs.ver') %}
+        <li class="nav-item mb-1">
+            <a href="{{ url('/logs') }}" class="nav-link text-white">Logs</a>
+        </li>
+        {% endif %}
+
+        <li class="nav-item mt-3">
+            <a href="{{ url('/logout') }}" class="nav-link text-danger">Sair</a>
+        </li>
+    </ul>
+</aside>

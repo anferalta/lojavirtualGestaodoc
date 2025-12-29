@@ -1,0 +1,37 @@
+{% extends "layout.twig" %}
+
+{% block title %}Carregar Documento{% endblock %}
+
+{% block content %}
+<h1>Carregar Documento</h1>
+
+<form action="{{ url('/documentos/store') }}" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+
+    <label>Título</label>
+    <input type="text" name="titulo" value="{{ old.titulo ?? '' }}" required>
+
+    <label>Descrição</label>
+    <textarea name="descricao">{{ old.descricao ?? '' }}</textarea>
+
+    <label>Estado</label>
+    <select name="estado">
+        <option value="ativo">Ativo</option>
+        <option value="inativo">Inativo</option>
+    </select>
+
+    <label>Ficheiro</label>
+    <input type="file" name="ficheiro" required>
+
+    {% if errors %}
+        <ul class="errors">
+            {% for e in errors %}
+                <li>{{ e }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <button class="btn-primary">Guardar</button>
+</form>
+{% endblock %}

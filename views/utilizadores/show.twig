@@ -1,0 +1,13 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<h1>Detalhes do Utilizador</h1>
+
+<p><strong>Nome:</strong> {{ user.nome }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Nível:</strong> {{ user.nivel }}</p>
+<p><strong>Estado:</strong> {{ user.estado == 1 ? 'Ativo' : 'Inativo' }}</p>
+
+<a href="/utilizadores/editar/{{ user.id }}" class="btn btn-primary">Editar</a>
+<a href="/utilizadores" class="btn btn-secondary">Voltar</a>
+{% endblock %}

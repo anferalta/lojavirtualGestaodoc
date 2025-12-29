@@ -1,0 +1,30 @@
+{% extends "layout-painel.twig" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<h1>Dashboard</h1>
+<p>Bem-vindo, {{ usuario_nome }}</p>
+
+<div class="cards">
+    <div class="card">
+        <div class="card-icon">👤</div>
+        <div class="card-title">Utilizadores</div>
+        <div class="card-value">12</div>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">📄</div>
+        <div class="card-title">Documentos</div>
+        <div class="card-value">87</div>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">🔒</div>
+        <div class="card-title">Tentativas de Login</div>
+        <div class="card-value">5</div>
+    </div>
+</div>
+
+{% endblock %}

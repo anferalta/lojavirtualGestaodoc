@@ -1,0 +1,13 @@
+{% extends "layout-login.twig" %}
+
+{% block title %}Validar 2FA{% endblock %}
+
+{% block content %}
+<h2>Autenticação de 2 Fatores</h2>
+<p>Introduza o código da app Google Authenticator.</p>
+
+<form action="{{ url('/2fa/validar') }}" method="post">
+    <input type="text" name="codigo" required placeholder="000000">
+    <button class="btn-login">Validar</button>
+</form>
+{% endblock %}

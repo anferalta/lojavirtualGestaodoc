@@ -1,0 +1,14 @@
+public function ver(int $id): void
+{
+    $doc = $this->docModel->find($id);
+
+    if (!$doc) {
+        die("Documento não encontrado.");
+    }
+
+    $caminho = __DIR__ . '/../../storage/documentos/' . $doc->ficheiro;
+
+    header("Content-Type: {$doc->tipo}");
+    readfile($caminho);
+    exit;
+}

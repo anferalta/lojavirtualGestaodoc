@@ -1,0 +1,37 @@
+{% extends "layout-painel.twig" %}
+
+{% block title %}Dashboard de Segurança{% endblock %}
+
+{% block content %}
+<h1>Dashboard de Segurança</h1>
+
+<div class="card">
+    <h3>Estado da Conta</h3>
+    <p><strong>Último login:</strong> {{ user.ultimo_login ?? 'Nunca' }}</p>
+    <p><strong>2FA:</strong> {{ user.two_factor_ativo ? 'Ativado' : 'Desativado' }}</p>
+    <p><strong>Tentativas falhadas:</strong> {{ user.tentativas_falhadas }}</p>
+</div>
+
+<div class="card">
+    <h3>Atividade Recente</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ação</th>
+                <th>IP</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.acao }}</td>
+                <td>{{ log.ip }}</td>
+                <td>{{ log.criado_em }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

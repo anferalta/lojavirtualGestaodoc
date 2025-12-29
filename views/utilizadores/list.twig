@@ -1,0 +1,55 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<div class="card">
+    <h2>Gestão de Utilizadores</h2>
+
+    <a href="{{ url('/utilizadores/criar') }}" class="btn btn-primary">+ Novo Utilizador</a>
+
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Nível</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for u in utilizadores %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.nome }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.level }}</td>
+                    <td>
+                        <a href="{{ url('/utilizadores/editar/' ~ u.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url('/utilizadores/eliminar/' ~ u.id) }}"
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('Tem a certeza que deseja eliminar este utilizador?')">
+                           Eliminar
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhum utilizador encontrado.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if pages > 1 %}
+        <div class="pagination">
+            {% for p in 1..pages %}
+                <a href="{{ url('/utilizadores?page=' ~ p) }}"
+                   class="page-link {{ p == page ? 'active' : '' }}">
+                    {{ p }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

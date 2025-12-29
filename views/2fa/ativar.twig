@@ -1,0 +1,31 @@
+{% extends "layout.twig" %}
+
+{% block title %}Ativar 2FA{% endblock %}
+
+{% block content %}
+<h1>Ativar Autenticação de 2 Fatores</h1>
+
+<p>1. Abra a app Google Authenticator.</p>
+<p>2. Clique em “Adicionar conta”.</p>
+<p>3. Leia o QR Code abaixo.</p>
+
+<div style="text-align:center;">
+    <img 
+        src="https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl={{ qrCodeUri|url_encode }}" 
+        alt="QR Code 2FA"
+    >
+</div>
+
+<p>Ou introduza manualmente o código:</p>
+
+<pre>{{ secret }}</pre>
+
+<form action="{{ url('/2fa/confirmar') }}" method="post">
+    <input type="hidden" name="secret" value="{{ secret }}">
+
+    <label>Código de 6 dígitos</label>
+    <input type="text" name="codigo" required>
+
+    <button class="btn-primary">Confirmar</button>
+</form>
+{% endblock %}

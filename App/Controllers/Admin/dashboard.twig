@@ -1,0 +1,135 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+  <h1>Dashboard Administrativo</h1>
+
+  {# Mensagens flash #}
+  {% set mensagens = flash() %}
+  {% if mensagens %}
+    {% for msg in mensagens %}
+      <div class="alert alert-{{ msg.tipo }}">
+        <i class="fas fa-info-circle"></i> {{ msg.conteudo }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Cards resumo -->
+  <div class="row mb-4">
+    <div class="col-md-2">
+      <div class="card text-bg-primary mb-3">
+        <div class="card-body text-center">
+          <h6>Total Usuários</h6>
+          <p class="fs-4">{{ totalUsuarios }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card text-bg-success mb-3">
+        <div class="card-body text-center">
+          <h6>Ativos</h6>
+          <p class="fs-4">{{ totalAtivos }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card text-bg-danger mb-3">
+        <div class="card-body text-center">
+          <h6>Inativos</h6>
+          <p class="fs-4">{{ totalInativos }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-warning mb-3">
+        <div class="card-body text-center">
+          <h6>Moderadores</h6>
+          <p class="fs-4">{{ totalModeradores }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-dark mb-3">
+        <div class="card-body text-center">
+          <h6>Administradores</h6>
+          <p class="fs-4">{{ totalAdmins }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfico Chart.js -->
+  <h2>Pedidos de recuperação de senha (últimos 30 dias)</h2>
+  <canvas id="graficoPedidos" width="400" height="200"></canvas>
+
+  <!-- Tabela detalhada -->
+  <h3 class="mt-4">Detalhes dos pedidos</h3>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Email</th>
+        <th>IP Origem</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pedido in pedidos %}
+        <tr>
+          <td>{{ pedido.dia }}</td>
+          <td>{{ pedido.email }}</td>
+          <td>{{ pedido.ip_origem }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Paginação -->
+  <nav>
+    <ul class="pagination">
+      <li class="page-item {{ page <= 1 ? 'disabled' : '' }}">
+        <a class="page-link" href="?page={{ page-1 }}">Anterior</a>
+      </li>
+      {% for i in 1..totalPages %}
+        <li class="page-item {{ i == page ? 'active' : '' }}">
+          <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+        </li>
+      {% endfor %}
+      <li class="page-item {{ page >= totalPages ? 'disabled' : '' }}">
+        <a class="page-link" href="?page={{ page+1 }}">Próxima</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctxPedidos = document.getElementById('graficoPedidos').getContext('2d');
+const graficoPedidos = new Chart(ctxPedidos, {
+  type: 'bar',
+  data: {
+    labels: {{ labelsPedidos|json_encode|raw }},
+    datasets: [{
+      label: 'Pedidos por dia',
+      data: {{ valuesPedidos|json_encode|raw }},
+      backgroundColor: 'rgba(255, 159, 64, 0.7)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: { display: true, text: 'Pedidos de recuperação de senha (últimos 30 dias)' }
+    },
+    scales: {
+      x: { title: { display: true, text: 'Data' } },
+      y: { beginAtZero: true, title: { display: true, text: 'Quantidade' } }
+    }
+  }
+});
+</script>
+{% endblock %}

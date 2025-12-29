@@ -1,0 +1,62 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+  <h1>{{ title }}</h1>
+  <p>Bem-vindo ao painel! Aqui você pode gerir usuários, visualizar estatísticas e aceder ao dashboard.</p>
+
+  {# Mensagens flash #}
+  {% set mensagens = flash() %}
+  {% if mensagens %}
+    {% for msg in mensagens %}
+      <div class="alert alert-{{ msg.tipo }}">
+        <i class="fas fa-info-circle"></i> {{ msg.conteudo }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Cards resumo -->
+  <div class="row mb-4">
+    <div class="col-md-2">
+      <div class="card text-bg-primary mb-3">
+        <div class="card-body text-center">
+          <h6>Total Usuários</h6>
+          <p class="fs-4">{{ totalUsuarios }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card text-bg-success mb-3">
+        <div class="card-body text-center">
+          <h6>Ativos</h6>
+          <p class="fs-4">{{ totalAtivos }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card text-bg-danger mb-3">
+        <div class="card-body text-center">
+          <h6>Inativos</h6>
+          <p class="fs-4">{{ totalInativos }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-warning mb-3">
+        <div class="card-body text-center">
+          <h6>Moderadores</h6>
+          <p class="fs-4">{{ totalModeradores }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-dark mb-3">
+        <div class="card-body text-center">
+          <h6>Administradores</h6>
+          <p class="fs-4">{{ totalAdmins }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

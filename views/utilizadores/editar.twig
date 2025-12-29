@@ -1,0 +1,54 @@
+{% extends "layout-painel.twig" %}
+
+{% block title %}Editar Utilizador{% endblock %}
+
+{% block content %}
+
+<h1>Editar Utilizador</h1>
+
+{% if errors %}
+    <div class="flash flash-danger">
+        <ul>
+        {% for e in errors %}
+            <li>{{ e }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<form action="{{ url('/utilizadores/editar/' ~ user.id) }}" method="post">
+
+    <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+    <label>Nome</label>
+    <input type="text" name="nome" value="{{ old.nome ?? user.nome }}" required>
+
+    <label>Email</label>
+    <input type="email" name="email" value="{{ old.email ?? user.email }}" required>
+
+    <label>Nível</label>
+    <select name="nivel">
+        <option value="1" {{ (old.nivel ?? user.nivel) == '1' ? 'selected' : '' }}>1</option>
+        <option value="2" {{ (old.nivel ?? user.nivel) == '2' ? 'selected' : '' }}>2</option>
+        <option value="3" {{ (old.nivel ?? user.nivel) == '3' ? 'selected' : '' }}>3</option>
+    </select>
+
+    <label>Estado</label>
+    <select name="estado">
+        <option value="ativo"   {{ (old.estado ?? user.estado) == 'ativo' ? 'selected' : '' }}>Ativo</option>
+        <option value="inativo" {{ (old.estado ?? user.estado) == 'inativo' ? 'selected' : '' }}>Inativo</option>
+    </select>
+
+    <hr>
+
+    <label>Nova Senha (opcional)</label>
+    <input type="password" name="nova_senha">
+
+    <label>Confirmar Nova Senha</label>
+    <input type="password" name="nova_senha2">
+
+    <button class="btn">Guardar</button>
+
+</form>
+
+{% endblock %}

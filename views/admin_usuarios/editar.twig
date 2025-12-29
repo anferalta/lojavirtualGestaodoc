@@ -1,0 +1,37 @@
+{% extends "base.twig" %}
+
+{% block title %}Editar Utilizador{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Editar Utilizador</h1>
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Nome</label>
+        <input type="text" name="nome" class="form-control" value="{{ user.nome }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Perfil</label>
+        <select name="perfil_id" class="form-select">
+            <option value="">Nenhum</option>
+            {% for p in perfis %}
+                <option value="{{ p.id }}" {% if user.perfil_id == p.id %}selected{% endif %}>{{ p.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-check mb-3">
+        <input type="checkbox" name="estado" class="form-check-input" {% if user.estado %}checked{% endif %}>
+        <label class="form-check-label">Ativo</label>
+    </div>
+
+    <button class="btn btn-success">Guardar</button>
+    <a href="/admin/utilizadores" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

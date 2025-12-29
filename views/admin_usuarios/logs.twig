@@ -1,0 +1,26 @@
+{% extends "base.twig" %}
+
+{% block title %}Logs de {{ user.nome }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Logs de {{ user.nome }}</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Ação</th>
+            <th>Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.acao }}</td>
+            <td>{{ log.criado_em }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/admin/utilizadores" class="btn btn-secondary">Voltar</a>
+{% endblock %}

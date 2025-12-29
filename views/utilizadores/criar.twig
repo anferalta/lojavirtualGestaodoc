@@ -1,0 +1,52 @@
+{% extends "layout-painel.twig" %}
+
+{% block title %}Criar Utilizador{% endblock %}
+
+{% block content %}
+
+    <h1>Criar Utilizador</h1>
+
+    {% if errors %}
+        <div class="flash flash-danger">
+            <ul>
+                {% for e in errors %}
+                    <li>{{ e }}</li>
+                    {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+
+    <form action="{{ url('/utilizadores/criar') }}" method="post">
+        <input type="hidden" name="_csrf" value="{{ csrf() }}">
+
+        <label>Nome</label>
+        <input type="text" name="nome" value="{{ old.nome ?? '' }}" required>
+
+        <label>Email</label>
+        <input type="email" name="email" value="{{ old.email ?? '' }}" required>
+
+        <label>Senha</label>
+        <input type="password" name="senha" required>
+
+        <label>Confirmar Senha</label>
+        <input type="password" name="senha2" required>
+
+        <label>Estado</label>
+        <select name="estado">
+            <option value="ativo"   {{ old.estado == 'ativo' ? 'selected' : '' }}>Ativo</option>
+            <option value="inativo" {{ old.estado == 'inativo' ? 'selected' : '' }}>Inativo</option>
+        </select>
+
+        <label>Nível</label>
+        <select name="nivel">
+            <option value="1" {{ old.nivel == '1' ? 'selected' : '' }}>1</option>
+            <option value="2" {{ old.nivel == '2' ? 'selected' : '' }}>2</option>
+            <option value="3" {{ old.nivel == '3' ? 'selected' : '' }}>3</option>
+        </select>
+
+        <button class="btn">Criar</button>
+
+    </form>
+
+{% endblock %}

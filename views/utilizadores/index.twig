@@ -1,0 +1,43 @@
+{% extends "layout-painel.twig" %}
+
+{% block title %}Utilizadores{% endblock %}
+
+{% block content %}
+
+    <h1>Utilizadores</h1>
+
+    <a href="{{ url('/utilizadores/criar') }}" class="btn">+ Novo Utilizador</a>
+
+    <table class="tabela">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Nível</th>
+                <th>Estado</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for u in utilizadores %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.nome }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.nivel }}</td>
+                    <td>{{ u.estado }}</td>
+                    <td>
+                        <a href="{{ url('/utilizadores/editar/' ~ u.id) }}">Editar</a> 
+
+                        <a href="{{ url('/utilizadores/' ~ u.id) }}">{{ u.nome }}</a>
+
+                        <a href="{{ url('/utilizadores/eliminar/' ~ u.id) }}" onclick="return confirm('Eliminar?')">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
