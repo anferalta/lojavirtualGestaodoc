@@ -1,70 +1,45 @@
 <?php
 
-namespace App\Core;
+namespace app\Core;
 
-use App\Core\Utilizador;
-use App\Core\Conexao;
+use app\Core\Conexao;
+use PDO;
 
 class Auth
 {
-    private static ?Utilizador $userModel = null;
-
-    private static function model(): Utilizador
+    public static function user(): ?object
     {
-        if (!self::$userModel) {
-            self::$userModel = new Utilizador(Conexao::getInstancia());
-        }
-        return self::$userModel;
-    }
-
-    public static function attempt(string $email, string $senha): bool
-    {
-        $user = self::model()->findByEmail($email);
-
-        if (!$user) {
-            return false;
+        if (!isset($_SESSION['user_id'])) {
+            return null;
         }
 
-        if (!password_verify($senha, $user->senha)) {
-            return false;
-        }
+        $db = Conexao::getInstancia();
 
-        if (!$user->isAtivo()) {
-            return false;
-        }
+        $stmt = $db->prepare("SELECT * FROM utilizadores WHERE id = :id LIMIT 1");
+        $stmt->execute([':id' => $_SESSION['user_id']]);
 
-        $_SESSION['user_id']    = $user->id;
-        $_SESSION['perfil_id']  = $user->perfil_id ?? null;
-        $_SESSION['nivel']      = $user->nivel ?? null;
-
-        self::model()->updateLastLogin($user->id);
-
-        return true;
+        return $stmt->fetch(PDO::FETCH_OBJ) ?: null;
     }
 
     public static function check(): bool
     {
-        return !empty($_SESSION['user_id']);
+        return isset($_SESSION['user_id']);
+    }
+
+    public static function login(int $id): void
+    {
+        $_SESSION['user_id'] = $id;
+        Acl::flush(); // recarregar permissões
+    }
+
+    public static function logout(): void
+    {
+        unset($_SESSION['user_id']);
+        Acl::flush();
     }
 
     public static function id(): ?int
     {
         return $_SESSION['user_id'] ?? null;
-    }
-
-    public static function user(): ?object
-    {
-        $id = self::id();
-        if (!$id) {
-            return null;
-        }
-
-        return self::model()->find($id);
-    }
-
-    public static function logout(): void
-    {
-        unset($_SESSION['user_id'], $_SESSION['perfil_id'], $_SESSION['nivel']);
-        session_regenerate_id(true);
     }
 }

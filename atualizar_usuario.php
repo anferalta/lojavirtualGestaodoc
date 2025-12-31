@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/../App/Core/Env.php';
-require_once __DIR__ . '/../App/Core/Conexao.php';
+require_once __DIR__ . '/../app/Core/Env.php';
+require_once __DIR__ . '/../app/Core/Conexao.php';
 
-use App\Core\Env;
-use App\Core\Conexao;
+use app\Core\Env;
+use app\Core\Conexao;
 
 Env::load();
 $con = Conexao::getInstancia();

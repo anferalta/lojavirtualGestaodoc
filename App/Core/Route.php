@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core;
+namespace app\Core;
 
 class Route
 {
@@ -85,7 +85,7 @@ class Route
                 }
 
                 [$controller, $action] = explode('@', $route['action']);
-                $controller = "App\\Controllers\\$controller";
+                $controller = "app\\Controllers\\$controller";
 
                 if (!class_exists($controller)) {
                     throw new \Exception("Controller $controller não encontrado.");

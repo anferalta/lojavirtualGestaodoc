@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Core\BaseController;
-use App\Core\Conexao;
-use App\Core\Documento;
-use App\Core\Validator;
-use App\Core\Sessao;
-use App\Core\Helpers;
-use App\Core\Upload;
-use App\Core\Auth;
-use App\Core\Acl;
+use app\Core\BaseController;
+use app\Core\Conexao;
+use app\Core\Documento;
+use app\Core\Validator;
+use app\Core\Sessao;
+use app\Core\Helpers;
+use app\Core\Upload;
+use app\Core\Auth;
+use app\Core\Acl;
 
 class DocumentosController extends BaseController
 {

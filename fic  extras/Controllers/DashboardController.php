@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Core\BaseController;
-use App\Core\Conexao;
-use App\Core\Usuario;
+use app\Core\BaseController;
+use app\Core\Conexao;
+use app\Core\Usuario;
 
 class DashboardController extends BaseController
 {

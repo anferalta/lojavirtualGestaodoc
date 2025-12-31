@@ -1,6 +1,6 @@
 <?php
-use App\Core\Permission;
-use App\Core\Sessao;
+use app\Core\Permission;
+use app\Core\Sessao;
 
 return function($codigo) {
     if (!Permission::tem($codigo)) {

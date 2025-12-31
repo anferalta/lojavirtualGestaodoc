@@ -1,11 +1,27 @@
 RewriteEngine On
-RewriteBase /
 
-# Permitir assets estáticos
-RewriteCond %{REQUEST_URI} ^/assets/
+# ============================
+# 1. Proteger ficheiros sensíveis
+# ============================
+<FilesMatch "\.(env|ini|log|sql|sh|bak|config)$">
+    Require all denied
+</FilesMatch>
+
+# ============================
+# 2. Permitir assets estáticos
+# ============================
+RewriteCond %{REQUEST_URI} ^/assets/ [OR]
+RewriteCond %{REQUEST_URI} ^/uploads_publicos/
 RewriteRule .* - [L]
 
-# Redirecionar tudo para index.php
+# ============================
+# 3. Permitir ficheiros comuns
+# ============================
+RewriteRule ^(favicon\.ico|robots\.txt|manifest\.json)$ - [L]
+
+# ============================
+# 4. Redirecionar tudo para index.php
+# ============================
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteRule ^ index.php [QSA,L]

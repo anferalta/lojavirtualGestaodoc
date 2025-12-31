@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Controllers\Admin;
+namespace app\Controllers\Admin;
 
-use App\Core\Controller;
-use App\Core\Helpers;
-use App\Controllers\UsuarioController;
-use App\Core\Sessao;
+use app\Core\Controller;
+use app\Core\Helpers;
+use app\Controllers\UsuarioController;
+use app\Core\Sessao;
 
 class AdminController extends Controller
 {
@@ -13,7 +13,7 @@ class AdminController extends Controller
 
     public function __construct()
     {
-        parent::__construct('App/Views/Sites');
+        parent::__construct('app/Views/Sites');
 
         // Corrigido: usar UsuarioController
         $this->usuario = UsuarioController::usuario();

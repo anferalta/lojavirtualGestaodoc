@@ -1,9 +1,9 @@
 <?php
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Core\Auth;
-use App\Core\Database;
-use App\Core\Helpers;
+use app\Core\Auth;
+use app\Core\Database;
+use app\Core\Helpers;
 
 class DocumentController
 {

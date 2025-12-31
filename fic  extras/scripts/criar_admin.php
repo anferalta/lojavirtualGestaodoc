@@ -3,7 +3,7 @@
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../index.php';
 
-use App\Core\Conexao;
+use app\Core\Conexao;
 
 $db = Conexao::getInstancia();
 

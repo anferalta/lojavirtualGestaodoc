@@ -1,11 +1,11 @@
 <?php
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Core\BaseController;
-use App\Core\Helpers;
-use App\Core\Validator;
-use App\Core\Auth;
-use App\Model\UsuarioModel;
+use app\Core\BaseController;
+use app\Core\Helpers;
+use app\Core\Validator;
+use app\Core\Auth;
+use app\Model\UsuarioModel;
 
 class UsuariosController extends BaseController
 {

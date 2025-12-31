@@ -1,9 +1,9 @@
 <?php
 
-use App\Core\Sessao;
-use App\Core\Helpers;
-use App\Core\Permission;
-use App\Core\Conexao;
+use app\Core\Sessao;
+use app\Core\Helpers;
+use app\Core\Permission;
+use app\Core\Conexao;
 
 /**
  * ---------------------------------------------------------

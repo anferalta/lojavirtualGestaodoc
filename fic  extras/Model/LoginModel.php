@@ -1,7 +1,7 @@
 <?php
-namespace App\Model;
+namespace app\Model;
 
-use App\Core\Conexao;
+use app\Core\Conexao;
 use PDO;
 
 class LoginModel

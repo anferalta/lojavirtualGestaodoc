@@ -1,28 +1,21 @@
 <?php
 
-declare(strict_types=1);
+define('BASE_PATH', dirname(__DIR__));
+
+require BASE_PATH . '/vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
+$dotenv->load();
 
 session_start();
 
-// 1) Autoload (sempre primeiro)
-require __DIR__ . '/../vendor/autoload.php';
+// Core
+require BASE_PATH . '/app/Core/Conexao.php';
+require BASE_PATH . '/app/Core/Helpers.php';
+require BASE_PATH . '/app/Core/Auth.php';
+require BASE_PATH . '/app/Core/Acl.php';
+require BASE_PATH . '/app/Core/Sessao.php';
+require BASE_PATH . '/app/Core/TwigBootstrap.php';
 
-use App\Core\Env;
-use App\Core\Route;
-
-// 2) Carregar variáveis de ambiente (.env)
-Env::load();
-
-// 3) Gerar token CSRF se não existir
-if (!isset($_SESSION['_csrf'])) {
-    $_SESSION['_csrf'] = bin2hex(random_bytes(32));
-}
-
-// 4) Carregar middlewares globais
-require __DIR__ . '/../App/bootstrap/middlewares.php';
-
-// 5) Carregar rotas
-require __DIR__ . '/../App/Routes/web.php';
-
-// 6) Despachar rota
-Route::dispatch();
+// Router
+require BASE_PATH . '/router.php';

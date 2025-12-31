@@ -1,9 +1,9 @@
 <?php
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Core\BaseController;
-use App\Core\Conexao;
-use App\Core\Helpers;
+use app\Core\BaseController;
+use app\Core\Conexao;
+use app\Core\Helpers;
 
 class PermissionController extends BaseController
 {

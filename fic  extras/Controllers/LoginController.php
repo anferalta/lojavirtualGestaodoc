@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Core\BaseController;
-use App\Core\Conexao;
-use App\Core\Usuario;
-use App\Core\Sessao;
-use App\Core\Helpers;
+use app\Core\BaseController;
+use app\Core\Conexao;
+use app\Core\Usuario;
+use app\Core\Sessao;
+use app\Core\Helpers;
 use DateTime;
 
 class LoginController extends BaseController

@@ -1,7 +1,7 @@
-use App\Core\Acl;
-use App\Core\Auth;
-use App\Core\Sessao;
-use App\Core\Helpers;
+use app\Core\Acl;
+use app\Core\Auth;
+use app\Core\Sessao;
+use app\Core\Helpers;
 
 Middleware::register('perm', function ($permissionKey) {
 

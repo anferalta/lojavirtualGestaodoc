@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Core;
+namespace app\Core;
 
-use App\Core\Conexao;
+use app\Core\Conexao;
 use PDO;
 
 class Acl
 {
-    private static ?array $permissoes = null;
-
     public static function can(string $chave): bool
     {
         $user = Auth::user();
@@ -16,11 +14,12 @@ class Acl
             return false;
         }
 
-        if (self::$permissoes === null) {
+        // Cache por sessão
+        if (!isset($_SESSION['acl_cache'])) {
             self::carregarPermissoes($user->perfil_id);
         }
 
-        return in_array($chave, self::$permissoes, true);
+        return in_array($chave, $_SESSION['acl_cache'], true);
     }
 
     private static function carregarPermissoes(int $perfilId): void
@@ -35,11 +34,11 @@ class Acl
         $stmt = $db->prepare($sql);
         $stmt->execute([':perfil' => $perfilId]);
 
-        self::$permissoes = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'chave');
+        $_SESSION['acl_cache'] = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'chave');
     }
 
     public static function flush(): void
     {
-        self::$permissoes = null;
+        unset($_SESSION['acl_cache']);
     }
 }

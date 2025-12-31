@@ -1,9 +1,9 @@
 <?php
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Core\BaseController;
-use App\Core\Auth;
-use App\Core\Conexao;
+use app\Core\BaseController;
+use app\Core\Auth;
+use app\Core\Conexao;
 
 class SegurancaController extends BaseController
 {

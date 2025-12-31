@@ -1,7 +1,7 @@
 <?php
-namespace App\Middleware;
+namespace app\Middleware;
 
-use App\Core\Conexao;
+use app\Core\Conexao;
 
 class ApiTokenMiddleware
 {

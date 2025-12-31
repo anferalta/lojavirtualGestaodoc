@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Controllers\Admin;
+namespace app\Controllers\Admin;
 
-use App\Core\Controller;
-use App\Core\Helpers;
-use App\Model\UsuarioModel;
+use app\Core\Controller;
+use app\Core\Helpers;
+use app\Model\UsuarioModel;
 
 class AdminLoginController extends Controller
 {

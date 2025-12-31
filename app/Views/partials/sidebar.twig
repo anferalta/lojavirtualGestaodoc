@@ -1,0 +1,83 @@
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2 class="sidebar-title">Painel</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        {# Dashboard #}
+        <a href="{{ url('/') }}"
+           class="sidebar-item {{ app_route == 'dashboard' ? 'active' : '' }}">
+            <span class="icon">🏠</span>
+            <span>Dashboard</span>
+        </a>
+
+        {# Utilizadores #}
+        {% if can('utilizadores.ver') %}
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Utilizadores</div>
+
+                <a href="{{ url('/utilizadores') }}"
+                   class="sidebar-item {{ app_route starts with 'utilizadores' ? 'active' : '' }}">
+                    <span class="icon">👤</span>
+                    <span>Utilizadores</span>
+                </a>
+
+                {% if can('perfis.ver') %}
+                    <a href="{{ url('/perfis') }}"
+                       class="sidebar-item {{ app_route starts with 'perfis' ? 'active' : '' }}">
+                        <span class="icon">🛡️</span>
+                        <span>Perfis</span>
+                    </a>
+                {% endif %}
+
+                {% if can('permissoes.ver') %}
+                    <a href="{{ url('/permissoes') }}"
+                       class="sidebar-item {{ app_route starts with 'permissoes' ? 'active' : '' }}">
+                        <span class="icon">🔑</span>
+                        <span>Permissões</span>
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {# Documentos #}
+        {% if can('documentos.ver') %}
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Documentos</div>
+
+                <a href="{{ url('/documentos') }}"
+                   class="sidebar-item {{ app_route starts with 'documentos' ? 'active' : '' }}">
+                    <span class="icon">📁</span>
+                    <span>Documentos</span>
+                </a>
+            </div>
+        {% endif %}
+
+        {# Auditoria #}
+        {% if can('auditoria.ver') %}
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Auditoria</div>
+
+                <a href="{{ url('/auditoria') }}"
+                   class="sidebar-item {{ app_route starts with 'auditoria' ? 'active' : '' }}">
+                    <span class="icon">📜</span>
+                    <span>Logs</span>
+                </a>
+            </div>
+        {% endif %}
+
+        {# Notificações #}
+        {% if can('notificacoes.ver') %}
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Notificações</div>
+
+                <a href="{{ url('/notificacoes') }}"
+                   class="sidebar-item {{ app_route starts with 'notificacoes' ? 'active' : '' }}">
+                    <span class="icon">🔔</span>
+                    <span>Notificações</span>
+                </a>
+            </div>
+        {% endif %}
+    </nav>
+</aside>

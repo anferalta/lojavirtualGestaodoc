@@ -1,9 +1,11 @@
 {
     "autoload": {
-        "psr-4": {"App\\": "App/"}
+        "psr-4": {"app\\": "app/"}
     },
     "require": {
         "twig/twig": "^3.0",
-        "spomky-labs/otphp": "^10.0"
+        "spomky-labs/otphp": "^10.0",
+        "vlucas/phpdotenv": "^5.6",
+        "altorouter/altorouter": "^2.0"
     }
 }

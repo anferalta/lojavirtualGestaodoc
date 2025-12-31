@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Controllers;
+namespace app\Controllers;
 
-use App\Core\BaseController;
-use App\Core\Conexao;
-use App\Core\Perfil;
-use App\Core\Permission;
-use App\Core\Validator;
-use App\Core\Sessao;
-use App\Core\Helpers;
+use app\Core\BaseController;
+use app\Core\Conexao;
+use app\Core\Perfil;
+use app\Core\Permission;
+use app\Core\Validator;
+use app\Core\Sessao;
+use app\Core\Helpers;
 
 class PerfisController extends BaseController
 {

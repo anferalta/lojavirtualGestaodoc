@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Core;
+namespace app\Core;
 
 use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
 use Twig\TwigFunction;
-use App\Core\Sessao;
-use App\Core\Menu;
-use App\Core\Helpers;
+use app\Core\Sessao;
+use app\Core\Menu;
+use app\Core\Helpers;
 
 class BaseController {
 
@@ -25,6 +25,11 @@ class BaseController {
             'cache' => false,
             'debug' => true
         ]);
+        
+        $this->twig = TwigBootstrap::init();
+
+        $this->twig->addGlobal('auth_user', Auth::user());
+        $this->twig->addGlobal('notificacoes_nao_lidas', Notification::unreadForCurrent());
 
         /**
          * ---------------------------------------------------------

@@ -1,5 +1,5 @@
 <?php
-namespace App\Core;
+namespace app\Core;
 
 class Route
 {
@@ -41,7 +41,7 @@ class Route
 
                 // Chamar controller
                 [$controller, $method] = explode('@', $route['action']);
-                $controller = "App\\Controllers\\{$controller}";
+                $controller = "app\\Controllers\\{$controller}";
 
                 (new $controller())->$method();
                 return;
@@ -49,6 +49,6 @@ class Route
         }
 
         // 404
-        (new \App\Controllers\ErrorController())->notFound();
+        (new \app\Controllers\ErrorController())->notFound();
     }
 }

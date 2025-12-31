@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Model;
+namespace app\Model;
 
-use App\Core\Model;
+use app\Core\Model;
 use PDO;
 
 class UsuarioModel extends Model

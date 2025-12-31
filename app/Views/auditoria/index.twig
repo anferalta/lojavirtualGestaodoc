@@ -1,0 +1,42 @@
+{% extends "layouts/painel.twig" %}
+
+{% block title %}Auditoria{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">Logs de auditoria</h1>
+</div>
+
+<div class="table-wrapper">
+    <table class="modern-table">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Utilizador</th>
+                <th>Ação</th>
+                <th>Detalhe</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in registos %}
+                <tr>
+                    <td>{{ log.criado_em }}</td>
+                    <td>{{ log.utilizador_nome ?? '—' }}</td>
+                    <td>{{ log.acao }}</td>
+                    <td>{{ log.detalhe ?? '—' }}</td>
+                    <td>{{ log.ip ?? '—' }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:20px;">
+                        Nenhum registo encontrado.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

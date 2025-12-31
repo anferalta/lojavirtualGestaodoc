@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Suporte;
+namespace app\Suporte;
 
 class Template
 {
