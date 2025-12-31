@@ -1,0 +1,110 @@
+{% extends "layouts/painel.twig" %}
+
+{% block title %}Utilizadores{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">Utilizadores</h1>
+
+    <a href="{{ url('/utilizadores/criar') }}" class="btn-primary">
+        + Novo utilizador
+    </a>
+</div>
+
+<!-- CARDS RESUMO -->
+<div class="cards-grid">
+    <div class="card">
+        <div class="card-icon">👤</div>
+        <div class="card-info">
+            <h3>Total de Utilizadores</h3>
+            <p>{{ total_utilizadores ?? 0 }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">🧩</div>
+        <div class="card-info">
+            <h3>Perfis</h3>
+            <p>{{ total_perfis ?? 0 }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">📄</div>
+        <div class="card-info">
+            <h3>Documentos</h3>
+            <p>{{ total_documentos ?? 0 }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- TABELA MODERNA -->
+<div class="table-wrapper">
+    <table class="modern-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Nível</th>
+                <th>Estado</th>
+                <th>Último login</th>
+                <th class="text-end">Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for u in utilizadores %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.nome }}</td>
+                    <td>{{ u.email }}</td>
+
+                    <td>
+                        <span class="badge badge-info">
+                            {{ u.nivelLabel() }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% if u.isAtivo() %}
+                            <span class="badge badge-success">Ativo</span>
+                        {% else %}
+                            <span class="badge badge-danger">Inativo</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ u.ultimoLogin() ?? '—' }}</td>
+
+                    <td class="text-end">
+                        <a href="{{ url('/utilizadores/editar/' ~ u.id) }}" class="btn-sm btn-warning">
+                            Editar
+                        </a>
+
+                        <a href="{{ url('/utilizadores/eliminar/' ~ u.id) }}"
+                           class="btn-sm btn-danger"
+                           onclick="return confirm('Tem a certeza que deseja eliminar?')">
+                            Apagar
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- PAGINAÇÃO -->
+<div class="pagination-wrapper">
+    <ul class="pagination">
+        {% for p in 1..totalPaginas %}
+            <li class="page-item {{ p == pagina ? 'active' : '' }}">
+                <a class="page-link" href="{{ url('/utilizadores?pagina=' ~ p) }}">
+                    {{ p }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Core\BaseController;
@@ -25,33 +26,47 @@ class PerfisController extends BaseController
     {
         echo $this->twig->render('perfis/index.twig', [
             'perfis' => $this->perfilModel->all(),
-            'flash'  => Sessao::flash()
         ]);
     }
 
     public function criar(): void
     {
-        echo $this->twig->render('perfis/criar.twig', [
-            'permissoes' => $this->permModel->all(),
-            'csrf'       => Sessao::csrf()
+        echo $this->twig->render('perfis/form.twig', [
+            'acao'            => 'criar',
+            'perfil'          => null,
+            'permissoes'      => $this->permModel->all(),
+            'permissoesAtivas'=> [],
+            'form_errors'     => [],
+            'csrf'            => Sessao::csrf(),
         ]);
     }
 
     public function store(): void
     {
-        $nome       = $_POST['nome'] ?? '';
-        $descricao  = $_POST['descricao'] ?? '';
-        $estado     = $_POST['estado'] ?? 'ativo';
-        $permissoes = $_POST['permissoes'] ?? [];
+        if (!Sessao::validarCsrf($_POST['_csrf'] ?? '')) {
+            Sessao::flash('Token CSRF inválido.', 'danger');
+            return Helpers::redirecionar('/perfis/criar');
+        }
 
-        $validator = new Validator();
-        $validator->required('nome', $nome, 'O nome é obrigatório.');
+        $nome        = trim($_POST['nome'] ?? '');
+        $descricao   = trim($_POST['descricao'] ?? '');
+        $estado      = $_POST['estado'] ?? 'ativo';
+        $permissoes  = $_POST['permissoes'] ?? [];
 
-        if ($validator->hasErrors()) {
-            echo $this->twig->render('perfis/criar.twig', [
-                'errors'     => $validator->getErrors(),
-                'permissoes' => $this->permModel->all(),
-                'csrf'       => Sessao::csrf()
+        $v = new Validator();
+
+        $v->required('nome', $nome, 'O nome é obrigatório.');
+        $v->min('nome', $nome, 3, 'O nome deve ter pelo menos 3 caracteres.');
+        $v->in('estado', $estado, ['ativo', 'inativo'], 'Estado inválido.');
+
+        if ($v->hasErrors()) {
+            echo $this->twig->render('perfis/form.twig', [
+                'acao'            => 'criar',
+                'perfil'          => null,
+                'permissoes'      => $this->permModel->all(),
+                'permissoesAtivas'=> $permissoes,
+                'form_errors'     => $v->getErrors(),
+                'csrf'            => Sessao::csrf(),
             ]);
             return;
         }
@@ -59,13 +74,13 @@ class PerfisController extends BaseController
         $this->perfilModel->create([
             'nome'      => $nome,
             'descricao' => $descricao,
-            'estado'    => $estado
+            'estado'    => $estado,
         ]);
 
         $perfilId = Conexao::getInstancia()->lastInsertId();
         $this->perfilModel->syncPermissions($perfilId, $permissoes);
 
-        Sessao::setFlash('Perfil criado com sucesso.', 'success');
+        Sessao::flash('Perfil criado com sucesso.', 'success');
         Helpers::redirecionar('/perfis');
     }
 
@@ -74,44 +89,53 @@ class PerfisController extends BaseController
         $perfil = $this->perfilModel->find($id);
 
         if (!$perfil) {
-            Sessao::setFlash('Perfil não encontrado.', 'danger');
-            Helpers::redirecionar('/perfis');
-            return;
+            Sessao::flash('Perfil não encontrado.', 'danger');
+            return Helpers::redirecionar('/perfis');
         }
 
-        echo $this->twig->render('perfis/editar.twig', [
-            'perfil'         => $perfil,
-            'permissoes'     => $this->permModel->all(),
-            'permissoesAtivas' => array_column($this->perfilModel->getPermissions($id), 'id'),
-            'csrf'           => Sessao::csrf()
+        echo $this->twig->render('perfis/form.twig', [
+            'acao'            => 'editar',
+            'perfil'          => $perfil,
+            'permissoes'      => $this->permModel->all(),
+            'permissoesAtivas'=> $this->perfilModel->getPermissionIds($id),
+            'form_errors'     => [],
+            'csrf'            => Sessao::csrf(),
         ]);
     }
 
     public function update(int $id): void
     {
+        if (!Sessao::validarCsrf($_POST['_csrf'] ?? '')) {
+            Sessao::flash('Token CSRF inválido.', 'danger');
+            return Helpers::redirecionar('/perfis/editar/' . $id);
+        }
+
         $perfil = $this->perfilModel->find($id);
 
         if (!$perfil) {
-            Sessao::setFlash('Perfil não encontrado.', 'danger');
-            Helpers::redirecionar('/perfis');
-            return;
+            Sessao::flash('Perfil não encontrado.', 'danger');
+            return Helpers::redirecionar('/perfis');
         }
 
-        $nome       = $_POST['nome'] ?? '';
-        $descricao  = $_POST['descricao'] ?? '';
-        $estado     = $_POST['estado'] ?? 'ativo';
-        $permissoes = $_POST['permissoes'] ?? [];
+        $nome        = trim($_POST['nome'] ?? '');
+        $descricao   = trim($_POST['descricao'] ?? '');
+        $estado      = $_POST['estado'] ?? 'ativo';
+        $permissoes  = $_POST['permissoes'] ?? [];
 
-        $validator = new Validator();
-        $validator->required('nome', $nome, 'O nome é obrigatório.');
+        $v = new Validator();
 
-        if ($validator->hasErrors()) {
-            echo $this->twig->render('perfis/editar.twig', [
-                'perfil'         => $perfil,
-                'errors'         => $validator->getErrors(),
-                'permissoes'     => $this->permModel->all(),
-                'permissoesAtivas' => array_column($this->perfilModel->getPermissions($id), 'id'),
-                'csrf'           => Sessao::csrf()
+        $v->required('nome', $nome, 'O nome é obrigatório.');
+        $v->min('nome', $nome, 3, 'O nome deve ter pelo menos 3 caracteres.');
+        $v->in('estado', $estado, ['ativo', 'inativo'], 'Estado inválido.');
+
+        if ($v->hasErrors()) {
+            echo $this->twig->render('perfis/form.twig', [
+                'acao'            => 'editar',
+                'perfil'          => $perfil,
+                'permissoes'      => $this->permModel->all(),
+                'permissoesAtivas'=> $permissoes,
+                'form_errors'     => $v->getErrors(),
+                'csrf'            => Sessao::csrf(),
             ]);
             return;
         }
@@ -119,12 +143,12 @@ class PerfisController extends BaseController
         $this->perfilModel->update($id, [
             'nome'      => $nome,
             'descricao' => $descricao,
-            'estado'    => $estado
+            'estado'    => $estado,
         ]);
 
         $this->perfilModel->syncPermissions($id, $permissoes);
 
-        Sessao::setFlash('Perfil atualizado com sucesso.', 'success');
+        Sessao::flash('Perfil atualizado com sucesso.', 'success');
         Helpers::redirecionar('/perfis');
     }
 
@@ -133,14 +157,13 @@ class PerfisController extends BaseController
         $perfil = $this->perfilModel->find($id);
 
         if (!$perfil) {
-            Sessao::setFlash('Perfil não encontrado.', 'danger');
-            Helpers::redirecionar('/perfis');
-            return;
+            Sessao::flash('Perfil não encontrado.', 'danger');
+            return Helpers::redirecionar('/perfis');
         }
 
         $this->perfilModel->delete($id);
 
-        Sessao::setFlash('Perfil eliminado com sucesso.', 'success');
+        Sessao::flash('Perfil eliminado com sucesso.', 'success');
         Helpers::redirecionar('/perfis');
     }
 }

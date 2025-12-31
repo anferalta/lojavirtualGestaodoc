@@ -1,29 +1,50 @@
 <?php
+
 namespace App\Core;
+
+use App\Core\Utilizador;
+use App\Core\Conexao;
 
 class Auth
 {
-    /*
-    |--------------------------------------------------------------------------
-    | SESSÃO / LOGIN
-    |--------------------------------------------------------------------------
-    */
+    private static ?Utilizador $userModel = null;
 
-    public static function login(object $user): void
+    private static function model(): Utilizador
     {
-        $_SESSION['user_id']    = $user->id;
-        $_SESSION['user_email'] = $user->email;
-        $_SESSION['user_nome']  = $user->nome ?? '';
+        if (!self::$userModel) {
+            self::$userModel = new Utilizador(Conexao::getInstancia());
+        }
+        return self::$userModel;
     }
 
-    public static function logout(): void
+    public static function attempt(string $email, string $senha): bool
     {
-        unset($_SESSION['user_id'], $_SESSION['user_email'], $_SESSION['user_nome'], $_SESSION['2fa_validado']);
+        $user = self::model()->findByEmail($email);
+
+        if (!$user) {
+            return false;
+        }
+
+        if (!password_verify($senha, $user->senha)) {
+            return false;
+        }
+
+        if (!$user->isAtivo()) {
+            return false;
+        }
+
+        $_SESSION['user_id']    = $user->id;
+        $_SESSION['perfil_id']  = $user->perfil_id ?? null;
+        $_SESSION['nivel']      = $user->nivel ?? null;
+
+        self::model()->updateLastLogin($user->id);
+
+        return true;
     }
 
     public static function check(): bool
     {
-        return isset($_SESSION['user_id']);
+        return !empty($_SESSION['user_id']);
     }
 
     public static function id(): ?int
@@ -31,144 +52,19 @@ class Auth
         return $_SESSION['user_id'] ?? null;
     }
 
-    public static function email(): ?string
+    public static function user(): ?object
     {
-        return $_SESSION['user_email'] ?? null;
-    }
-
-    public static function user()
-    {
-        if (!self::check()) {
+        $id = self::id();
+        if (!$id) {
             return null;
         }
 
-        $db = Conexao::getInstancia();
-        $stm = $db->prepare("SELECT * FROM utilizadores WHERE id = :id LIMIT 1");
-        $stm->execute(['id' => self::id()]);
-        return $stm->fetch(\PDO::FETCH_OBJ);
+        return self::model()->find($id);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | TENTATIVAS DE LOGIN / BLOQUEIO
-    |--------------------------------------------------------------------------
-    */
-
-    public static function registarFalhaLogin(string $email): void
+    public static function logout(): void
     {
-        $email = trim(strtolower($email));
-        $db = Conexao::getInstancia();
-
-        $stmt = $db->prepare("SELECT * FROM login_tentativas WHERE email = :email");
-        $stmt->execute(['email' => $email]);
-        $row = $stmt->fetch(\PDO::FETCH_OBJ);
-
-        // Primeira tentativa
-        if (!$row) {
-            $db->prepare("
-                INSERT INTO login_tentativas (email, tentativas) 
-                VALUES (:email, 1)
-            ")->execute(['email' => $email]);
-
-            return;
-        }
-
-        $tentativas = $row->tentativas + 1;
-
-        // Bloqueio após 5 falhas
-        if ($tentativas >= 5) {
-            $db->prepare("
-                UPDATE login_tentativas 
-                SET tentativas = :t, bloqueado_ate = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
-                WHERE email = :email
-            ")->execute(['t' => $tentativas, 'email' => $email]);
-
-            self::logAuth(null, $email, 'login_bloqueado');
-            return;
-        }
-
-        // Apenas incrementa
-        $db->prepare("
-            UPDATE login_tentativas 
-            SET tentativas = :t 
-            WHERE email = :email
-        ")->execute(['t' => $tentativas, 'email' => $email]);
-    }
-
-    public static function limparTentativas(int $userId): void
-    {
-        $db = Conexao::getInstancia();
-
-        $stm = $db->prepare("SELECT email FROM utilizadores WHERE id = :id");
-        $stm->execute(['id' => $userId]);
-        $email = $stm->fetchColumn();
-
-        if (!$email) return;
-
-        $db->prepare("DELETE FROM login_tentativas WHERE email = :email")
-           ->execute(['email' => $email]);
-    }
-
-    public static function estaBloqueado(object $user): bool
-    {
-        $db = Conexao::getInstancia();
-
-        $stmt = $db->prepare("
-            SELECT bloqueado_ate 
-            FROM login_tentativas 
-            WHERE email = :email
-        ");
-        $stmt->execute(['email' => $user->email]);
-        $row = $stmt->fetch(\PDO::FETCH_OBJ);
-
-        if (!$row || !$row->bloqueado_ate) {
-            return false;
-        }
-
-        return strtotime($row->bloqueado_ate) > time();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOGS DE AUTENTICAÇÃO
-    |--------------------------------------------------------------------------
-    */
-
-    public static function logAuth(?int $userId, ?string $email, string $acao): void
-    {
-        $db = Conexao::getInstancia();
-
-        $sql = "
-            INSERT INTO logs_auth (user_id, email, acao, ip, user_agent)
-            VALUES (:uid, :email, :acao, :ip, :ua)
-        ";
-
-        $stm = $db->prepare($sql);
-        $stm->execute([
-            'uid'   => $userId,
-            'email' => $email,
-            'acao'  => $acao,
-            'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-            'ua'    => $_SERVER['HTTP_USER_AGENT'] ?? ''
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | API TOKENS
-    |--------------------------------------------------------------------------
-    */
-
-    public static function gerarTokenApi(int $userId): string
-    {
-        $token = bin2hex(random_bytes(32));
-
-        $db = Conexao::getInstancia();
-        $db->prepare("
-            INSERT INTO api_tokens (user_id, token) 
-            VALUES (:uid, :token)
-        ")->execute(['uid' => $userId, 'token' => $token]);
-
-        return $token;
+        unset($_SESSION['user_id'], $_SESSION['perfil_id'], $_SESSION['nivel']);
+        session_regenerate_id(true);
     }
 }

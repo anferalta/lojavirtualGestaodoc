@@ -1,0 +1,36 @@
+{% extends "base.twig" %}
+
+{% block title %}Permissões{% endblock %}
+{% block page_title %}Gestão de Permissões{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between mb-3">
+    <h4>Permissões</h4>
+    <a href="/permissoes/criar" class="btn btn-primary">Criar Permissão</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Chave</th>
+            <th>Descrição</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for perm in permissoes %}
+            <tr>
+                <td>{{ perm.id }}</td>
+                <td>{{ perm.chave }}</td>
+                <td>{{ perm.descricao }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center">Nenhuma permissão encontrada.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

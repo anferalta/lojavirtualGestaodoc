@@ -1,0 +1,40 @@
+{% extends "base.twig" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{{ titulo }}</h1>
+
+<div class="row">
+
+    <div class="col-md-4">
+        <div class="card text-bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total de Utilizadores</h5>
+                <p class="card-text fs-3">{{ stats.total_usuarios ?? 0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Perfis Criados</h5>
+                <p class="card-text fs-3">{{ stats.total_perfis ?? 0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Registos de Log</h5>
+                <p class="card-text fs-3">{{ stats.total_logs ?? 0 }}</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<p class="mt-4">Mais estatísticas e gráficos serão adicionados em breve.</p>
+{% endblock %}

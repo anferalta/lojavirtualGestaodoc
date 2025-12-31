@@ -1,0 +1,41 @@
+{% extends "base.twig" %}
+
+{% block title %}Perfis{% endblock %}
+{% block page_title %}Gestão de Perfis{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between mb-3">
+    <h4>Perfis</h4>
+    <a href="/perfis/criar" class="btn btn-primary">Criar Perfil</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for perfil in perfis %}
+            <tr>
+                <td>{{ perfil.id }}</td>
+                <td>{{ perfil.nome }}</td>
+                <td>
+                    <a href="/perfis/editar/{{ perfil.id }}" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="/perfis/permissoes/{{ perfil.id }}" class="btn btn-sm btn-info">Permissões</a>
+                    <a href="/perfis/eliminar/{{ perfil.id }}" class="btn btn-sm btn-danger"
+                       onclick="return confirm('Eliminar este perfil?')">Eliminar</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center">Nenhum perfil encontrado.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

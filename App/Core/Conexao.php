@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Core;
 
 use PDO;
@@ -10,32 +11,39 @@ class Conexao
 
     public static function getInstancia(): PDO
     {
-        if (self::$instancia === null) {
-            try {
-                $host = $_ENV['DB_HOST'] ?? 'localhost';
-                $db   = $_ENV['DB_NAME'] ?? '';
-                $user = $_ENV['DB_USER'] ?? '';
-                $pass = $_ENV['DB_PASS'] ?? '';
-                $port = $_ENV['DB_PORT'] ?? 3306;
+        if (self::$instancia !== null) {
+            return self::$instancia;
+        }
 
-                $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
+        // Garantir que o .env foi carregado
+        if (empty($_ENV['DB_HOST'])) {
+            throw new \RuntimeException("As variáveis de ambiente não foram carregadas. Falta chamar Env::load().");
+        }
 
-                self::$instancia = new PDO(
-                    $dsn,
-                    $user,
-                    $pass,
-                    [
-                        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-                        PDO::ATTR_EMULATE_PREPARES   => false,  // prepared statements reais
-                        PDO::ATTR_PERSISTENT         => false   // podes ativar se quiseres
-                    ]
-                );
+        // Ler variáveis do .env
+        $host    = $_ENV['DB_HOST'];
+        $db      = $_ENV['DB_NAME'];
+        $user    = $_ENV['DB_USER'];
+        $pass    = $_ENV['DB_PASS'];
+        $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
 
-            } catch (PDOException $e) {
-                error_log("Erro na conexão: " . $e->getMessage());
-                throw new \Exception("Falha ao conectar à base de dados.");
+        // Validar variáveis obrigatórias
+        foreach (['DB_HOST','DB_NAME','DB_USER'] as $var) {
+            if (empty($_ENV[$var])) {
+                throw new \RuntimeException("Variável de ambiente obrigatória em falta: {$var}");
             }
+        }
+
+        $dsn = "mysql:host={$host};dbname={$db};charset={$charset}";
+
+        try {
+            self::$instancia = new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES   => false,
+            ]);
+        } catch (PDOException $e) {
+            throw new \RuntimeException("Erro ao conectar à base de dados: " . $e->getMessage());
         }
 
         return self::$instancia;

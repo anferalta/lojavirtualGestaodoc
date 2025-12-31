@@ -1,74 +1,106 @@
 <?php
-namespace App\Core;
 
-use PDO;
+namespace App\Core;
 
 class Validator
 {
     private array $errors = [];
 
-    private function addError(string $field, string $message): void
+    private function addError(string $campo, string $msg): void
     {
-        $this->errors[$field][] = $message;
+        $this->errors[$campo][] = $msg;
     }
 
-    public function required(string $field, $value, string $message): void
+    public function required(string $campo, ?string $valor, string $msg): void
     {
-        if ($value === null || trim((string)$value) === '') {
-            $this->addError($field, $message);
+        if (trim((string) $valor) === '') {
+            $this->addError($campo, $msg);
         }
     }
 
-    public function email(string $field, $value, string $message): void
+    public function min(string $campo, string $valor, int $min, string $msg): void
     {
-        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            $this->addError($field, $message);
+        if (mb_strlen($valor, 'UTF-8') < $min) {
+            $this->addError($campo, $msg);
         }
     }
 
-    public function min(string $field, $value, int $min, string $message): void
+    public function max(string $campo, string $valor, int $max, string $msg): void
     {
-        if (strlen((string)$value) < $min) {
-            $this->addError($field, $message);
+        if (mb_strlen($valor, 'UTF-8') > $max) {
+            $this->addError($campo, $msg);
         }
     }
 
-    public function max(string $field, $value, int $max, string $message): void
+    public function email(string $campo, string $valor, string $msg): void
     {
-        if (strlen((string)$value) > $max) {
-            $this->addError($field, $message);
+        if (!filter_var($valor, FILTER_VALIDATE_EMAIL)) {
+            $this->addError($campo, $msg);
         }
     }
 
-    public function match(string $field, $value, $otherValue, string $message): void
+    public function match(string $campo, string $v1, string $v2, string $msg): void
     {
-        if ($value !== $otherValue) {
-            $this->addError($field, $message);
+        if ($v1 !== $v2) {
+            $this->addError($campo, $msg);
         }
     }
 
-    public function numeric(string $field, $value, string $message): void
+    public function in(string $campo, string $valor, array $lista, string $msg): void
     {
-        if (!is_numeric($value)) {
-            $this->addError($field, $message);
+        if (!in_array($valor, $lista, true)) {
+            $this->addError($campo, $msg);
         }
     }
 
-    public function in(string $field, $value, array $allowed, string $message): void
+    public function numeric(string $campo, $valor, string $msg): void
     {
-        if (!in_array($value, $allowed, true)) {
-            $this->addError($field, $message);
+        if (!is_numeric($valor)) {
+            $this->addError($campo, $msg);
         }
     }
 
-    public function unique(string $field, $value, PDO $db, string $table, string $column, string $message): void
+    public function integer(string $campo, $valor, string $msg): void
     {
-        $sql = "SELECT COUNT(*) FROM {$table} WHERE {$column} = :value LIMIT 1";
-        $stm = $db->prepare($sql);
-        $stm->execute(['value' => $value]);
+        if (filter_var($valor, FILTER_VALIDATE_INT) === false) {
+            $this->addError($campo, $msg);
+        }
+    }
 
-        if ($stm->fetchColumn() > 0) {
-            $this->addError($field, $message);
+    public function regex(string $campo, string $valor, string $pattern, string $msg): void
+    {
+        if (!preg_match($pattern, $valor)) {
+            $this->addError($campo, $msg);
+        }
+    }
+
+    public function unique(
+        string $campo,
+        string $valor,
+        \PDO $db,
+        string $tabela,
+        string $coluna,
+        string $msg,
+        ?int $ignoreId = null
+    ): void {
+        $sql = "SELECT COUNT(*) AS total FROM {$tabela} WHERE {$coluna} = :v";
+
+        if ($ignoreId !== null) {
+            $sql .= " AND id != :id";
+        }
+
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':v', $valor);
+
+        if ($ignoreId !== null) {
+            $stmt->bindValue(':id', $ignoreId, \PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+        $total = (int) $stmt->fetchColumn();
+
+        if ($total > 0) {
+            $this->addError($campo, $msg);
         }
     }
 
@@ -80,5 +112,10 @@ class Validator
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    public function getFirstError(string $campo): ?string
+    {
+        return $this->errors[$campo][0] ?? null;
     }
 }

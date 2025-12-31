@@ -1,7 +1,0 @@
-{% set flash_msg = sessao.flash() %}
-
-{% if flash_msg %}
-    <div class="alert alert-{{ flash_msg.tipo }}">
-        {{ flash_msg.mensagem }}
-    </div>
-{% endif %}

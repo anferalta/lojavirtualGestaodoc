@@ -4,15 +4,41 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Core\Auth;
+use App\Core\Conexao;
+use App\Models\Utilizador;
+use App\Models\Documento;
+use App\Models\Perfil;
 
 class PainelController extends BaseController
 {
+    private Utilizador $userModel;
+    private Documento $docModel;
+    private Perfil $perfilModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $db = Conexao::getInstancia();
+
+        $this->userModel   = new Utilizador($db);
+        $this->docModel    = new Documento($db);
+        $this->perfilModel = new Perfil($db);
+    }
+
     public function index(): void
     {
         $user = Auth::user();
 
-        echo $this->twig->render('painel/index.twig', [
-            'user' => $user
+        $totalUtilizadores = $this->userModel->count();
+        $totalDocumentos   = $this->docModel->count();
+        $totalPerfis       = $this->perfilModel->count();
+
+        $this->view('painel/dashboard', [
+            'titulo'             => 'Dashboard',
+            'total_utilizadores' => $totalUtilizadores,
+            'total_documentos'   => $totalDocumentos,
+            'total_perfis'       => $totalPerfis
         ]);
     }
 }

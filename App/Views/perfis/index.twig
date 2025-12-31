@@ -1,0 +1,59 @@
+{% extends "layouts/painel.twig" %}
+
+{% block title %}Perfis{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">Perfis</h1>
+
+    <a href="{{ url('/perfis/criar') }}" class="btn-primary">
+        Novo perfil
+    </a>
+</div>
+
+<div class="table-wrapper">
+    <table class="modern-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Estado</th>
+                <th class="text-end">Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for p in perfis %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.nome }}</td>
+                    <td>{{ p.descricao }}</td>
+
+                    <td>
+                        {% if p.estado == 'ativo' %}
+                            <span class="badge badge-success">Ativo</span>
+                        {% else %}
+                            <span class="badge badge-danger">Inativo</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-end">
+                        <a href="{{ url('/perfis/editar/' ~ p.id) }}" class="btn-sm btn-warning">
+                            Editar
+                        </a>
+
+                        <a href="{{ url('/perfis/eliminar/' ~ p.id) }}"
+                           class="btn-sm btn-danger"
+                           onclick="return confirm('Tem a certeza que deseja eliminar este perfil?')">
+                            Apagar
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

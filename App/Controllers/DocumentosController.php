@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Core\BaseController;
@@ -7,10 +8,9 @@ use App\Core\Documento;
 use App\Core\Validator;
 use App\Core\Sessao;
 use App\Core\Helpers;
-use App\Core\Auth;
 use App\Core\Upload;
-use App\Core\Versoes;
-use App\Core\Auditoria;
+use App\Core\Auth;
+use App\Core\Acl;
 
 class DocumentosController extends BaseController
 {
@@ -22,222 +22,211 @@ class DocumentosController extends BaseController
         $this->docModel = new Documento(Conexao::getInstancia());
     }
 
-    /**
-     * LISTAGEM COM PAGINAÇÃO
-     */
     public function index(): void
     {
-        Helpers::requirePermission('documentos.ver');
-
-        $page = $_GET['page'] ?? 1;
-        $perPage = 10;
-        $offset = ($page - 1) * $perPage;
-
-        $total = $this->docModel->countAll();
-        $docs  = $this->docModel->getPage($perPage, $offset);
-        $pagination = Helpers::paginate($total, $perPage, $page);
+        $docs = $this->docModel->all();
 
         echo $this->twig->render('documentos/index.twig', [
             'documentos' => $docs,
-            'pagination' => $pagination
+            'csrf'       => Sessao::csrf(),
         ]);
     }
 
-    /**
-     * FORMULÁRIO DE UPLOAD
-     */
-    public function upload(): void
+    public function criar(): void
     {
-        Helpers::requirePermission('documentos.criar');
-
-        echo $this->twig->render('documentos/upload.twig', [
-            'csrf' => Sessao::csrf()
+        echo $this->twig->render('documentos/form.twig', [
+            'acao'        => 'criar',
+            'doc'         => null,
+            'form_old'    => [],
+            'form_errors' => [],
+            'csrf'        => Sessao::csrf(),
         ]);
     }
 
-    /**
-     * GUARDAR NOVO DOCUMENTO
-     */
     public function store(): void
     {
-        Helpers::requirePermission('documentos.criar');
-
-        $titulo    = $_POST['titulo'] ?? '';
-        $descricao = $_POST['descricao'] ?? '';
-        $estado    = $_POST['estado'] ?? 'ativo';
-
-        $validator = new Validator();
-        $validator->required('titulo', $titulo, 'O título é obrigatório.');
-
-        if (!isset($_FILES['ficheiro']) || $_FILES['ficheiro']['error'] !== UPLOAD_ERR_OK) {
-            $validator->addError('ficheiro', 'O ficheiro é obrigatório.');
+        if (!Sessao::validarCsrf($_POST['_csrf'] ?? '')) {
+            Sessao::flash('Token CSRF inválido.', 'danger');
+            return Helpers::redirecionar('/documentos/criar');
         }
 
-        if ($validator->hasErrors()) {
-            echo $this->twig->render('documentos/upload.twig', [
-                'errors' => $validator->getErrors(),
-                'old'    => ['titulo' => $titulo, 'descricao' => $descricao],
-                'csrf'   => Sessao::csrf()
+        $titulo    = trim($_POST['titulo'] ?? '');
+        $descricao = trim($_POST['descricao'] ?? '');
+
+        $v = new Validator();
+        $v->required('titulo', $titulo, 'O título é obrigatório.');
+        $v->min('titulo', $titulo, 3, 'O título deve ter pelo menos 3 caracteres.');
+
+        if (empty($_FILES['ficheiro']) || $_FILES['ficheiro']['error'] === UPLOAD_ERR_NO_FILE) {
+            $v->required('ficheiro', '', 'É obrigatório enviar um ficheiro.');
+        }
+
+        if ($v->hasErrors()) {
+            echo $this->twig->render('documentos/form.twig', [
+                'acao'        => 'criar',
+                'doc'         => null,
+                'form_old'    => compact('titulo', 'descricao'),
+                'form_errors' => $v->getErrors(),
+                'csrf'        => Sessao::csrf(),
             ]);
             return;
         }
 
         try {
-            // Upload seguro
-            $upload = Upload::documento($_FILES['ficheiro']);
+            $upload = new Upload();
+            $relativePath = $upload->uploadFile($_FILES['ficheiro'], 'documentos');
 
-            // Criar documento
-            $this->docModel->create([
-                'titulo'     => $titulo,
-                'descricao'  => $descricao,
-                'ficheiro'   => $upload['ficheiro'],
-                'tipo'       => $upload['extensao'],
-                'tamanho'    => $upload['tamanho'],
-                'estado'     => $estado,
-                'criado_por' => Auth::id()
-            ]);
+        } catch (\RuntimeException $e) {
+            $errors = [
+                'ficheiro' => [$e->getMessage()],
+            ];
 
-            // Log de auditoria
-            Auditoria::log(Auth::id(), 'criar');
-
-            Sessao::setFlash('Documento carregado com sucesso.', 'success');
-            Helpers::redirecionar('/documentos');
-
-        } catch (\Throwable $e) {
-            Sessao::setFlash($e->getMessage(), 'danger');
-            Helpers::redirecionar('/documentos/upload');
-        }
-    }
-
-    /**
-     * FORMULÁRIO DE EDIÇÃO
-     */
-    public function editar(int $id): void
-    {
-        Helpers::requirePermission('documentos.editar');
-
-        $doc = $this->docModel->find($id);
-
-        if (!$doc) {
-            Sessao::setFlash('Documento não encontrado.', 'danger');
-            Helpers::redirecionar('/documentos');
-        }
-
-        echo $this->twig->render('documentos/editar.twig', [
-            'doc'  => $doc,
-            'csrf' => Sessao::csrf()
-        ]);
-    }
-
-    /**
-     * ATUALIZAR DOCUMENTO
-     */
-    public function update(int $id): void
-    {
-        Helpers::requirePermission('documentos.editar');
-
-        $doc = $this->docModel->find($id);
-
-        if (!$doc) {
-            Sessao::setFlash('Documento não encontrado.', 'danger');
-            Helpers::redirecionar('/documentos');
-        }
-
-        $titulo    = $_POST['titulo'] ?? '';
-        $descricao = $_POST['descricao'] ?? '';
-        $estado    = $_POST['estado'] ?? 'ativo';
-
-        $validator = new Validator();
-        $validator->required('titulo', $titulo, 'O título é obrigatório.');
-
-        if ($validator->hasErrors()) {
-            echo $this->twig->render('documentos/editar.twig', [
-                'doc'    => $doc,
-                'errors' => $validator->getErrors(),
-                'csrf'   => Sessao::csrf()
+            echo $this->twig->render('documentos/form.twig', [
+                'acao'        => 'criar',
+                'doc'         => null,
+                'form_old'    => compact('titulo', 'descricao'),
+                'form_errors' => $errors,
+                'csrf'        => Sessao::csrf(),
             ]);
             return;
         }
 
-        // Guardar versão antiga
-        Versoes::guardar($doc);
+        $user = Auth::user();
 
-        // Atualizar documento
-        $this->docModel->update($id, [
+        $this->docModel->create([
             'titulo'    => $titulo,
             'descricao' => $descricao,
-            'estado'    => $estado
+            'caminho'   => $relativePath,
+            'owner_id'  => $user?->id,
+            'estado'    => 'ativo',
         ]);
 
-        // Log de auditoria
-        Auditoria::log(Auth::id(), 'editar', $id);
-
-        Sessao::setFlash('Documento atualizado com sucesso.', 'success');
+        Sessao::flash('Documento carregado com sucesso.', 'success');
         Helpers::redirecionar('/documentos');
     }
 
-    /**
-     * APAGAR DOCUMENTO
-     */
     public function delete(int $id): void
     {
-        Helpers::requirePermission('documentos.apagar');
-
         $doc = $this->docModel->find($id);
 
         if (!$doc) {
-            Sessao::setFlash('Documento não encontrado.', 'danger');
-            Helpers::redirecionar('/documentos');
+            Sessao::flash('Documento não encontrado.', 'danger');
+            return Helpers::redirecionar('/documentos');
         }
 
-        // Apagar ficheiro físico
-        $uploadDir = rtrim($_ENV['UPLOAD_DIR'], '/');
-        $path = $uploadDir . '/' . $doc->ficheiro;
+        $this->docModel->deleteWithFile($id);
 
-        if (is_file($path)) {
-            unlink($path);
-        }
-
-        // Apagar registo
-        $this->docModel->delete($id);
-
-        // Log de auditoria
-        Auditoria::log(Auth::id(), 'apagar', $id);
-
-        Sessao::setFlash('Documento eliminado com sucesso.', 'success');
+        Sessao::flash('Documento eliminado com sucesso.', 'success');
         Helpers::redirecionar('/documentos');
     }
 
-    /**
-     * DOWNLOAD SEGURO
-     */
     public function download(int $id): void
     {
-        Helpers::requirePermission('documentos.download');
+        if (!Acl::can('documentos.ver')) {
+            (new ErrorController())->error403();
+            return;
+        }
 
         $doc = $this->docModel->find($id);
 
         if (!$doc) {
-            Sessao::setFlash('Documento não encontrado.', 'danger');
-            Helpers::redirecionar('/documentos');
+            (new ErrorController())->error404();
+            return;
         }
 
-        $uploadDir = rtrim($_ENV['UPLOAD_DIR'], '/');
-        $path = $uploadDir . '/' . $doc->ficheiro;
+        $absolute = rtrim($_ENV['UPLOAD_DIR'], '/') . '/' . $doc->caminho;
 
-        if (!is_file($path)) {
-            Sessao::setFlash('Ficheiro não encontrado.', 'danger');
-            Helpers::redirecionar('/documentos');
+        if (!is_file($absolute)) {
+            (new ErrorController())->error404();
+            return;
         }
 
-        // Log de auditoria
-        Auditoria::log(Auth::id(), 'download', $id);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($doc->caminho) . '"');
+        header('Content-Length: ' . filesize($absolute));
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Pragma: public');
 
-        header('Content-Type: ' . $doc->tipo);
-        header('Content-Disposition: attachment; filename="' . $doc->ficheiro . '"');
-        header('Content-Length: ' . filesize($path));
-
-        readfile($path);
+        readfile($absolute);
         exit;
+    }
+
+    public function preview(int $id): void
+    {
+        if (!Acl::can('documentos.ver')) {
+            (new ErrorController())->error403();
+            return;
+        }
+
+        $doc = $this->docModel->find($id);
+
+        if (!$doc) {
+            (new ErrorController())->error404();
+            return;
+        }
+
+        $absolute = rtrim($_ENV['UPLOAD_DIR'], '/') . '/' . $doc->caminho;
+
+        if (!is_file($absolute)) {
+            (new ErrorController())->error404();
+            return;
+        }
+
+        $ext = strtolower(pathinfo($absolute, PATHINFO_EXTENSION));
+
+        if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            header('Content-Type: image/' . ($ext === 'jpg' ? 'jpeg' : $ext));
+            readfile($absolute);
+            exit;
+        }
+
+        if ($ext === 'pdf') {
+            header('Content-Type: application/pdf');
+            readfile($absolute);
+            exit;
+        }
+
+        (new ErrorController())->error403();
+    }
+
+    public function show(int $id): void
+    {
+        if (!Acl::can('documentos.ver')) {
+            (new ErrorController())->error403();
+            return;
+        }
+
+        $doc = $this->docModel->find($id);
+
+        if (!$doc) {
+            (new ErrorController())->error404();
+            return;
+        }
+
+        $absolute = rtrim($_ENV['UPLOAD_DIR'], '/') . '/' . $doc->caminho;
+        $preview  = null;
+
+        if (is_file($absolute)) {
+            $ext = strtolower(pathinfo($absolute, PATHINFO_EXTENSION));
+
+            if (in_array($ext, ['jpg','jpeg','png','gif','webp'])) {
+                $preview = [
+                    'type' => 'image',
+                    'url'  => Helpers::url('/documentos/preview/' . $doc->id),
+                ];
+            } elseif ($ext === 'pdf') {
+                $preview = [
+                    'type' => 'pdf',
+                    'url'  => Helpers::url('/documentos/preview/' . $doc->id),
+                ];
+            }
+        }
+
+        echo $this->twig->render('documentos/show.twig', [
+            'doc'     => $doc,
+            'preview' => $preview,
+            'csrf'    => Sessao::csrf(),
+        ]);
     }
 }

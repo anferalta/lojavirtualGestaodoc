@@ -1,0 +1,34 @@
+{# views/auth.twig #}
+<!doctype html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Autenticação{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+
+<div class="container" style="max-width: 420px;">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="h4 mb-3 text-center">Loja Virtual</h1>
+            <p class="text-muted text-center mb-4">Painel de gestão - Autenticação</p>
+
+            {# FLASH #}
+            {% if flash %}
+                <div class="alert alert-{{ flash.tipo }} alert-dismissible fade show" role="alert">
+                    {{ flash.msg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

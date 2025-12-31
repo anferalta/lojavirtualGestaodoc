@@ -1,0 +1,33 @@
+{% extends "layouts/painel.twig" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+</div>
+
+<div class="cards-grid">
+
+    {% include 'components/card.twig' with {
+        title: 'Utilizadores',
+        value: total_utilizadores,
+        icon: '👤'
+    } %}
+
+    {% include 'components/card.twig' with {
+        title: 'Documentos',
+        value: total_documentos,
+        icon: '📁'
+    } %}
+
+    {% include 'components/card.twig' with {
+        title: 'Perfis',
+        value: total_perfis,
+        icon: '🔐'
+    } %}
+
+</div>
+
+{% endblock %}

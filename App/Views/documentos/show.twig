@@ -1,0 +1,73 @@
+{% extends "layouts/painel.twig" %}
+
+{% block title %}Detalhes do Documento{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">Detalhes do Documento</h1>
+
+    <a href="{{ url('/documentos') }}" class="btn-sm btn-warning">Voltar</a>
+</div>
+
+<div class="card" style="padding:25px;">
+
+    <h2 style="margin-bottom:10px;">{{ doc.titulo }}</h2>
+
+    <p style="color:#6b7280; margin-bottom:20px;">
+        {{ doc.descricao ?: 'Sem descrição.' }}
+    </p>
+
+    <div style="margin-bottom:20px;">
+        <strong>Carregado por:</strong> {{ doc.owner_id ?: '—' }}<br>
+        <strong>Estado:</strong>
+        {% if doc.estado == 'ativo' %}
+            <span class="badge badge-success">Ativo</span>
+        {% else %}
+            <span class="badge badge-danger">Inativo</span>
+        {% endif %}
+        <br>
+        <strong>Carregado em:</strong> {{ doc.criado_em }}
+    </div>
+
+    <div style="display:flex; gap:10px;">
+
+        {% if can('documentos.ver') %}
+            <a href="{{ url('/documentos/download/' ~ doc.id) }}" class="btn-primary">
+                Download
+            </a>
+        {% endif %}
+
+        {% if can('documentos.editar') %}
+            <a href="{{ url('/documentos/editar/' ~ doc.id) }}" class="btn-sm btn-warning">
+                Editar
+            </a>
+        {% endif %}
+
+        {% if can('documentos.eliminar') %}
+            <form method="post"
+                  action="{{ url('/documentos/eliminar/' ~ doc.id) }}"
+                  onsubmit="return confirm('Tem a certeza que deseja eliminar este documento?');">
+
+                <input type="hidden" name="_csrf" value="{{ csrf }}">
+                <button class="btn-sm btn-danger">Eliminar</button>
+            </form>
+        {% endif %}
+    </div>
+
+    {# 🔥 Pré‑visualização segura #}
+    {% if preview %}
+        <hr style="margin:25px 0;">
+
+        <h3>Pré‑visualização</h3>
+
+        {% if preview.type == 'image' %}
+            <img src="{{ preview.url }}" style="max-width:100%; border-radius:6px;">
+        {% elseif preview.type == 'pdf' %}
+            <iframe src="{{ preview.url }}" style="width:100%; height:600px; border:none;"></iframe>
+        {% endif %}
+    {% endif %}
+
+</div>
+
+{% endblock %}

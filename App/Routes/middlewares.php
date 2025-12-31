@@ -1,26 +1,20 @@
-<?php
+use App\Core\Acl;
+use App\Core\Auth;
+use App\Core\Sessao;
+use App\Core\Helpers;
 
-use App\Core\Middleware;
-use App\Core\Permission;
-use App\Core\Conexao;
+Middleware::register('perm', function ($permissionKey) {
 
-/**
- * Middleware de autenticação
- */
-Middleware::register('auth', function () {
-    \App\Core\Auth::verificarLogin();
-});
+    if (!Auth::check()) {
+        Sessao::flash('É necessário autenticação.', 'danger');
+        Helpers::redirecionar('/login');
+        exit;
+    }
 
-/**
- * Middleware de permissões (ACL)
- */
-Middleware::register('perm', function ($permissionName) {
-    $perm = new Permission(Conexao::getInstancia());
-
-    if (!$perm->userHas($_SESSION['user_id'], $permissionName)) {
+    if (!Acl::can($permissionKey)) {
         http_response_code(403);
-        $err = new \App\Controllers\ErrorController();
-        $err->error403();
+        Sessao::flash('Não tem permissão para aceder a esta área.', 'danger');
+        Helpers::redirecionar('/painel');
         exit;
     }
 });

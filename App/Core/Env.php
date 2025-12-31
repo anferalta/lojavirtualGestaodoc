@@ -4,22 +4,22 @@ namespace App\Core;
 
 class Env
 {
-    public static function load(): void
+    public static function load(string $path = null, bool $overrideExisting = false): void
     {
-        
-        $file = __DIR__ . '/../../.env';
+        $file = $path ?? __DIR__ . '/../../.env';
 
         if (!file_exists($file)) {
+            // Em produção pode ser silencioso.
+            // Em dev, se quiseres, podes fazer um log aqui.
             return;
         }
 
         $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
         foreach ($lines as $line) {
-
             $line = trim($line);
 
-            // Ignorar comentários e linhas inválidas
+            // Ignorar comentários e linhas vazias
             if ($line === '' || str_starts_with($line, '#')) {
                 continue;
             }
@@ -40,6 +40,15 @@ class Env
             $key = trim($key);
             $value = trim($value);
 
+            if ($key === '') {
+                continue;
+            }
+
+            // Respeitar variáveis já definidas, se $overrideExisting = false
+            if (!$overrideExisting && (array_key_exists($key, $_ENV) || getenv($key) !== false)) {
+                continue;
+            }
+
             // Remover aspas se existirem
             if (
                 (str_starts_with($value, '"') && str_ends_with($value, '"')) ||
@@ -48,8 +57,7 @@ class Env
                 $value = substr($value, 1, -1);
             }
 
-            // Guardar em todas as variáveis possíveis
-            $_ENV[$key] = $value;
+            $_ENV[$key]    = $value;
             $_SERVER[$key] = $value;
             putenv("$key=$value");
         }

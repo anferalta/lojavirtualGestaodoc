@@ -1,0 +1,69 @@
+{% extends "layouts/painel.twig" %}
+
+{% block title %}
+    {{ acao == 'criar' ? 'Novo Documento' : 'Editar Documento' }}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">
+        {{ acao == 'criar' ? 'Carregar Documento' : 'Editar Documento' }}
+    </h1>
+</div>
+
+<div class="card" style="padding:25px;">
+
+    <form method="post"
+          action="{{ acao == 'criar' ? url('/documentos/criar') : url('/documentos/editar/' ~ doc.id) }}"
+          enctype="multipart/form-data">
+
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+        {# TÍTULO #}
+        {% include 'components/input.twig' with {
+            label: 'Título',
+            name: 'titulo',
+            value: form_old.titulo ?? doc.titulo ?? '',
+            errors: form_errors,
+            placeholder: 'Título do documento'
+        } %}
+
+        {# DESCRIÇÃO #}
+        <div class="form-group">
+            <label class="form-label">Descrição</label>
+            <textarea name="descricao" class="form-input" rows="3">{{ form_old.descricao ?? doc.descricao ?? '' }}</textarea>
+
+            {% if error(form_errors, 'descricao') %}
+                <div class="form-error">{{ error(form_errors, 'descricao') }}</div>
+            {% endif %}
+        </div>
+
+        {# FICHEIRO #}
+        <div class="form-group">
+            <label class="form-label">Ficheiro</label>
+
+            <input type="file" name="ficheiro"
+                   class="form-input {{ error(form_errors, 'ficheiro') ? 'input-error' : '' }}">
+
+            {% if error(form_errors, 'ficheiro') %}
+                <div class="form-error">{{ error(form_errors, 'ficheiro') }}</div>
+            {% endif %}
+
+            <small style="color:#6b7280; font-size:0.85rem;">
+                Extensões permitidas: {{ getenv('UPLOAD_ALLOWED_EXT') }}<br>
+                Tamanho máximo: {{ (getenv('UPLOAD_MAX_SIZE') / 1048576)|number_format(0) }} MB
+            </small>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+            <a href="{{ url('/documentos') }}" class="btn-sm btn-warning">Voltar</a>
+
+            <button class="btn-primary">
+                {{ acao == 'criar' ? 'Carregar Documento' : 'Guardar Alterações' }}
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

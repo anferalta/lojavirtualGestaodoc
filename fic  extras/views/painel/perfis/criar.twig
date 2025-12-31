@@ -1,0 +1,20 @@
+{% extends "base.twig" %}
+
+{% block title %}Criar Perfil{% endblock %}
+{% block page_title %}Criar Perfil{% endblock %}
+
+{% block content %}
+
+<form method="post" action="/perfis/store">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+
+    <div class="mb-3">
+        <label class="form-label">Nome do Perfil</label>
+        <input type="text" name="nome" class="form-control" required>
+    </div>
+
+    <button class="btn btn-success">Criar</button>
+    <a href="/perfis" class="btn btn-secondary">Cancelar</a>
+</form>
+
+{% endblock %}

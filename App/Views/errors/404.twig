@@ -1,0 +1,27 @@
+{% extends "layouts/painel.twig" %}
+
+{% block title %}Página não encontrada{% endblock %}
+
+{% block content %}
+
+<div class="card" style="padding: 40px; text-align: center;">
+
+    <h1 style="font-size: 3rem; color: #f59e0b; margin-bottom: 10px;">
+        404
+    </h1>
+
+    <h2 style="font-size: 1.6rem; margin-bottom: 15px;">
+        Página não encontrada
+    </h2>
+
+    <p style="color: #6b7280; font-size: 1rem; margin-bottom: 25px;">
+        A página que procura não existe ou foi movida.
+    </p>
+
+    <a href="{{ url('/painel') }}" class="btn-primary">
+        Voltar ao painel
+    </a>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "layouts/painel.twig" %}
+
+{% block title %}Perfil do utilizador{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1 class="page-title">Perfil do utilizador</h1>
+
+    <div style="display: flex; gap: 10px;">
+        <a href="{{ url('/utilizadores/editar/' ~ user.id) }}" class="btn-sm btn-warning">
+            Editar
+        </a>
+
+        <a href="{{ url('/utilizadores') }}" class="btn-sm btn-danger">
+            Voltar
+        </a>
+    </div>
+</div>
+
+<div class="card" style="padding: 25px;">
+
+    <h2 style="font-size: 1.4rem; margin-bottom: 5px;">{{ user.nome }}</h2>
+    <p style="color: #6b7280; margin-bottom: 20px;">ID #{{ user.id }}</p>
+
+    <div class="info-grid">
+
+        <div class="info-item">
+            <h6 class="info-label">Email</h6>
+            <p class="info-value">{{ user.email }}</p>
+        </div>
+
+        <div class="info-item">
+            <h6 class="info-label">Nível</h6>
+            <p class="info-value">
+                <span class="badge badge-info">{{ user.nivelLabel() }}</span>
+            </p>
+        </div>
+
+        <div class="info-item">
+            <h6 class="info-label">Estado</h6>
+            <p class="info-value">
+                {% if user.isAtivo() %}
+                    <span class="badge badge-success">Ativo</span>
+                {% else %}
+                    <span class="badge badge-danger">Inativo</span>
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="info-item">
+            <h6 class="info-label">Último login</h6>
+            <p class="info-value">{{ user.ultimoLogin() ?? '—' }}</p>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

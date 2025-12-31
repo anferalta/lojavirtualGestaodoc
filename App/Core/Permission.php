@@ -1,29 +1,44 @@
 <?php
+
 namespace App\Core;
 
 use PDO;
 
 class Permission
 {
-    public function __construct(private PDO $db) {}
+    private PDO $db;
+    private string $table = 'permissoes';
 
-    public function userHas(int $userId, string $permission): bool
+    public function __construct(PDO $db)
     {
-        $sql = "
-            SELECT COUNT(*) 
-            FROM perfis_permissoes pp
-            INNER JOIN utilizadores u ON u.perfil_id = pp.perfil_id
-            INNER JOIN permissoes p ON p.id = pp.permissao_id
-            WHERE u.id = :uid AND p.chave = :perm
-            LIMIT 1
-        ";
+        $this->db = $db;
+    }
 
-        $stm = $this->db->prepare($sql);
-        $stm->execute([
-            'uid'  => $userId,
-            'perm' => $permission
-        ]);
+    private function map(array $data): object
+    {
+        return (object) [
+            'id'        => (int) $data['id'],
+            'chave'     => $data['chave'],   // ex: 'utilizadores.ver'
+            'nome'      => $data['nome'],
+            'descricao' => $data['descricao'] ?? null,
+        ];
+    }
 
-        return (int)$stm->fetchColumn() > 0;
+    public function all(): array
+    {
+        $sql = "SELECT * FROM {$this->table} ORDER BY chave ASC";
+        $stmt = $this->db->query($sql);
+
+        return array_map(fn($row) => $this->map($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function findByKey(string $key): ?object
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE chave = :chave LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':chave' => $key]);
+
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $data ? $this->map($data) : null;
     }
 }

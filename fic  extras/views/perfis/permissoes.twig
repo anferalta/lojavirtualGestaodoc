@@ -1,0 +1,44 @@
+{% extends "base.twig" %}
+
+{% block title %}Permissões do Perfil{% endblock %}
+{% block page_title %}Permissões de {{ perfil.nome }}{% endblock %}
+
+{% block content %}
+
+<form method="post" action="/perfis/permissoes/{{ perfil.id }}">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+
+    <div class="card">
+        <div class="card-header">
+            <strong>Selecione as permissões</strong>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+                {% for perm in permissoes %}
+                    <div class="col-md-4 mb-2">
+                        <label class="form-check-label">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   name="permissoes[]"
+                                   value="{{ perm.id }}"
+                                   {% if perm.id in ativas %}checked{% endif %}>
+                            <strong>{{ perm.chave }}</strong><br>
+                            <small class="text-muted">{{ perm.descricao }}</small>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <div class="card-footer text-end">
+            <button class="btn btn-primary">Guardar Permissões</button>
+            <a href="/perfis" class="btn btn-secondary">Voltar</a>
+        </div>
+    </div>
+
+</form>
+
+{% endblock %}

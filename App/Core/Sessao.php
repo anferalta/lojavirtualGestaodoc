@@ -1,101 +1,103 @@
 <?php
+
 namespace App\Core;
 
-class Sessao {
-
-    /**
-     * Inicia a sessão se ainda não estiver ativa
-     */
-    public static function start(): void {
+class Sessao
+{
+    public static function start(): void
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
     }
 
-    /**
-     * Define um valor na sessão
-     */
-    public static function set(string $key, mixed $value): void {
-        self::start();
+    public static function set(string $key, mixed $value): void
+    {
         $_SESSION[$key] = $value;
     }
 
-    /**
-     * Obtém um valor da sessão
-     */
-    public static function get(string $key, mixed $default = null): mixed {
-        self::start();
+    public static function get(string $key, mixed $default = null): mixed
+    {
         return $_SESSION[$key] ?? $default;
     }
 
-    /**
-     * Verifica se existe uma chave na sessão
-     */
-    public static function has(string $key): bool {
-        self::start();
-        return isset($_SESSION[$key]);
-    }
-
-    /**
-     * Remove uma chave da sessão
-     */
-    public static function remove(string $key): void {
-        self::start();
+    public static function remove(string $key): void
+    {
         unset($_SESSION[$key]);
     }
 
     /**
-     * Limpa toda a sessão
+     * Flash message (mensagem temporária)
      */
-    public static function destroy(): void {
-        self::start();
-        $_SESSION = [];
-        session_destroy();
-    }
-
-    /**
-     * Flash message (ler e apagar)
-     */
-    public static function flash(): ?array {
-        self::start();
-
-        if (!isset($_SESSION['flash'])) {
-            return null;
-        }
-
-        $msg = $_SESSION['flash'];
-        unset($_SESSION['flash']);
-        return $msg;
-    }
-
-    /**
-     * Define uma flash message
-     */
-    public static function setFlash(string $mensagem, string $tipo = 'info'): void {
-        self::start();
+    public static function flash(?string $msg, string $tipo = 'info'): void
+    {
         $_SESSION['flash'] = [
-            'mensagem' => $mensagem,
+            'msg'  => $msg ?? '',
             'tipo' => $tipo
         ];
     }
 
     /**
-     * Token CSRF consistente com o middleware
+     * Obter e limpar flash
      */
-    public static function csrf(): string {
-        self::start();
-
-        if (!isset($_SESSION['_csrf'])) {
-            $_SESSION['_csrf'] = bin2hex(random_bytes(32));
+    public static function getFlash(): ?array
+    {
+        if (!isset($_SESSION['flash'])) {
+            return null;
         }
 
-        return $_SESSION['_csrf'];
+        $flash = $_SESSION['flash'];
+        unset($_SESSION['flash']);
+
+        return $flash;
     }
 
     /**
-     * Alias para has() — compatibilidade com middlewares antigos
+     * CSRF token
      */
-    public static function tem(string $key): bool {
-        return self::has($key);
+    public static function csrf(): string
+    {
+        if (!isset($_SESSION['_csrf'])) {
+            $_SESSION['_csrf'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['_csrf'];
+    }
+
+    public static function validarCsrf(string $token): bool
+    {
+        return isset($_SESSION['_csrf']) && hash_equals($_SESSION['_csrf'], $token);
+    }
+
+    /**
+     * Login
+     */
+    public static function login(object $user): void
+    {
+        $_SESSION['user_id'] = $user->id;
+        $_SESSION['usuario_nome'] = $user->nome;
+        $_SESSION['ultimo_login'] = date('Y-m-d H:i:s');
+    }
+
+    /**
+     * Logout seguro
+     */
+    public static function logout(): void
+    {
+        $_SESSION = [];
+
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+
+        session_destroy();
     }
 }
