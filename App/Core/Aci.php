@@ -7,60 +7,39 @@ use PDO;
 
 class Acl
 {
-    private static ?PDO $db = null;
+    private static ?array $permissoes = null;
 
-    private static function db(): PDO
-    {
-        if (!self::$db) {
-            self::$db = Conexao::getInstancia();
-        }
-        return self::$db;
-    }
-
-    /**
-     * Verifica se um perfil tem uma determinada permissão (por chave).
-     */
-    public static function perfilHasPermission(int $perfilId, string $permissionKey): bool
-    {
-        $sql = "SELECT 1
-                FROM perfis_permissoes pp
-                INNER JOIN permissoes p ON p.id = pp.permissao_id
-                WHERE pp.perfil_id = :perfil_id
-                  AND p.chave = :chave
-                LIMIT 1";
-
-        $stmt = self::db()->prepare($sql);
-        $stmt->execute([
-            ':perfil_id' => $perfilId,
-            ':chave'     => $permissionKey,
-        ]);
-
-        return (bool) $stmt->fetchColumn();
-    }
-
-    /**
-     * Verifica se o utilizador atual (Auth) tem a permissão.
-     */
-    public static function can(string $permissionKey): bool
+    public static function can(string $chave): bool
     {
         $user = Auth::user();
-        if (!$user) {
+        if (!$user || !$user->perfil_id) {
             return false;
         }
 
-        // Se tiver perfil_id, usa perfil
-        if (!empty($user->perfil_id)) {
-            return self::perfilHasPermission((int) $user->perfil_id, $permissionKey);
+        if (self::$permissoes === null) {
+            self::carregarPermissoes($user->perfil_id);
         }
 
-        // Fallback simples baseado em nível (se quiseres manter)
-        if (isset($user->nivel)) {
-            // Exemplo:
-            if ($user->nivel >= 3) {
-                return true; // admin
-            }
-        }
+        return in_array($chave, self::$permissoes, true);
+    }
 
-        return false;
+    private static function carregarPermissoes(int $perfilId): void
+    {
+        $db = Conexao::getInstancia();
+
+        $sql = "SELECT p.chave
+                FROM permissoes p
+                INNER JOIN perfis_permissoes pp ON pp.permissao_id = p.id
+                WHERE pp.perfil_id = :perfil";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':perfil' => $perfilId]);
+
+        self::$permissoes = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'chave');
+    }
+
+    public static function flush(): void
+    {
+        self::$permissoes = null;
     }
 }

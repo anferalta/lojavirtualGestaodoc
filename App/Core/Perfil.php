@@ -8,31 +8,16 @@ class Perfil
 {
     private PDO $db;
     private string $table = 'perfis';
-    private string $pivotTable = 'perfis_permissoes';
 
     public function __construct(PDO $db)
     {
         $this->db = $db;
     }
 
-    private function map(array $data): object
-    {
-        return (object) [
-            'id'        => (int) $data['id'],
-            'nome'      => $data['nome'],
-            'descricao' => $data['descricao'] ?? null,
-            'estado'    => $data['estado'] ?? 'ativo',
-
-            'isAtivo'   => fn() => ($data['estado'] ?? 'ativo') === 'ativo',
-        ];
-    }
-
     public function all(): array
     {
-        $sql = "SELECT * FROM {$this->table} ORDER BY nome ASC";
-        $stmt = $this->db->query($sql);
-
-        return array_map(fn($row) => $this->map($row), $stmt->fetchAll(PDO::FETCH_ASSOC));
+        $sql = "SELECT * FROM {$this->table} ORDER BY nome";
+        return $this->db->query($sql)->fetchAll(PDO::FETCH_OBJ);
     }
 
     public function find(int $id): ?object
@@ -41,8 +26,9 @@ class Perfil
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $id]);
 
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $data ? $this->map($data) : null;
+        $registo = $stmt->fetch(PDO::FETCH_OBJ);
+
+        return $registo ?: null;
     }
 
     public function create(array $dados): bool
@@ -61,90 +47,60 @@ class Perfil
 
     public function update(int $id, array $dados): bool
     {
-        $campos = [];
-        $params = [':id' => $id];
-
-        foreach ($dados as $campo => $valor) {
-            $campos[] = "$campo = :$campo";
-            $params[":$campo"] = $valor;
-        }
-
-        $sql = "UPDATE {$this->table} SET " . implode(', ', $campos) . " WHERE id = :id";
+        $sql = "UPDATE {$this->table}
+                SET nome = :nome,
+                    descricao = :descricao,
+                    estado = :estado
+                WHERE id = :id";
 
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute($params);
+
+        return $stmt->execute([
+            ':id'        => $id,
+            ':nome'      => $dados['nome'],
+            ':descricao' => $dados['descricao'] ?? null,
+            ':estado'    => $dados['estado'] ?? 'ativo',
+        ]);
     }
 
     public function delete(int $id): bool
     {
-        // Apaga associações de permissões primeiro
-        $sqlPivot = "DELETE FROM {$this->pivotTable} WHERE perfil_id = :id";
-        $stmtPivot = $this->db->prepare($sqlPivot);
-        $stmtPivot->execute([':id' => $id]);
-
         $sql = "DELETE FROM {$this->table} WHERE id = :id";
         $stmt = $this->db->prepare($sql);
 
         return $stmt->execute([':id' => $id]);
     }
 
-    /**
-     * Permissões associadas a um perfil (objetos Permission)
-     */
-    public function getPermissions(int $perfilId): array
-    {
-        $sql = "SELECT p.*
-                FROM permissoes p
-                INNER JOIN {$this->pivotTable} pp ON pp.permissao_id = p.id
-                WHERE pp.perfil_id = :perfil_id
-                ORDER BY p.chave ASC";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([':perfil_id' => $perfilId]);
-
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return array_map(fn($row) => (object) [
-            'id'        => (int) $row['id'],
-            'chave'     => $row['chave'],
-            'nome'      => $row['nome'],
-            'descricao' => $row['descricao'] ?? null,
-        ], $rows);
-    }
-
-    /**
-     * IDs de permissões de um perfil
-     */
     public function getPermissionIds(int $perfilId): array
     {
-        $sql = "SELECT permissao_id FROM {$this->pivotTable} WHERE perfil_id = :perfil_id";
+        $sql = "SELECT permissao_id FROM perfis_permissoes WHERE perfil_id = :perfil";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':perfil_id' => $perfilId]);
+        $stmt->execute([':perfil' => $perfilId]);
 
-        return array_map('intval', array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'permissao_id'));
+        return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'permissao_id');
     }
 
-    /**
-     * Sincronizar permissões de um perfil
-     */
-    public function syncPermissions(int $perfilId, array $permissoesIds): void
+    public function syncPermissions(int $perfilId, array $permissionIds): void
     {
-        $sqlDelete = "DELETE FROM {$this->pivotTable} WHERE perfil_id = :perfil_id";
-        $stmtDelete = $this->db->prepare($sqlDelete);
-        $stmtDelete->execute([':perfil_id' => $perfilId]);
+        $this->db->beginTransaction();
 
-        if (empty($permissoesIds)) {
-            return;
+        $sqlDel = "DELETE FROM perfis_permissoes WHERE perfil_id = :perfil";
+        $stmtDel = $this->db->prepare($sqlDel);
+        $stmtDel->execute([':perfil' => $perfilId]);
+
+        if (!empty($permissionIds)) {
+            $sqlIns = "INSERT INTO perfis_permissoes (perfil_id, permissao_id)
+                       VALUES (:perfil, :perm)";
+            $stmtIns = $this->db->prepare($sqlIns);
+
+            foreach ($permissionIds as $permId) {
+                $stmtIns->execute([
+                    ':perfil' => $perfilId,
+                    ':perm'   => $permId,
+                ]);
+            }
         }
 
-        $sqlInsert = "INSERT INTO {$this->pivotTable} (perfil_id, permissao_id) VALUES (:perfil_id, :permissao_id)";
-        $stmtInsert = $this->db->prepare($sqlInsert);
-
-        foreach ($permissoesIds as $permId) {
-            $stmtInsert->execute([
-                ':perfil_id'    => $perfilId,
-                ':permissao_id' => (int) $permId,
-            ]);
-        }
+        $this->db->commit();
     }
 }

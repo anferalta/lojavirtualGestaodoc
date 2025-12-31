@@ -7,9 +7,11 @@
 <div class="page-header">
     <h1 class="page-title">Perfis</h1>
 
-    <a href="{{ url('/perfis/criar') }}" class="btn-primary">
-        Novo perfil
-    </a>
+    {% if can('perfis.criar') %}
+        <a href="{{ url('/perfis/criar') }}" class="btn-primary">
+            Novo perfil
+        </a>
+    {% endif %}
 </div>
 
 <div class="table-wrapper">
@@ -23,35 +25,45 @@
                 <th class="text-end">Ações</th>
             </tr>
         </thead>
-
         <tbody>
-            {% for p in perfis %}
+            {% if perfis is empty %}
                 <tr>
-                    <td>{{ p.id }}</td>
-                    <td>{{ p.nome }}</td>
-                    <td>{{ p.descricao }}</td>
-
-                    <td>
-                        {% if p.estado == 'ativo' %}
-                            <span class="badge badge-success">Ativo</span>
-                        {% else %}
-                            <span class="badge badge-danger">Inativo</span>
-                        {% endif %}
-                    </td>
-
-                    <td class="text-end">
-                        <a href="{{ url('/perfis/editar/' ~ p.id) }}" class="btn-sm btn-warning">
-                            Editar
-                        </a>
-
-                        <a href="{{ url('/perfis/eliminar/' ~ p.id) }}"
-                           class="btn-sm btn-danger"
-                           onclick="return confirm('Tem a certeza que deseja eliminar este perfil?')">
-                            Apagar
-                        </a>
+                    <td colspan="5" style="text-align:center; padding:20px;">
+                        Nenhum perfil encontrado.
                     </td>
                 </tr>
-            {% endfor %}
+            {% else %}
+                {% for p in perfis %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td>{{ p.nome }}</td>
+                        <td>{{ p.descricao ?? '—' }}</td>
+                        <td>
+                            {% if p.estado == 'ativo' %}
+                                <span class="badge badge-success">Ativo</span>
+                            {% else %}
+                                <span class="badge badge-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end" style="display:flex; gap:6px; justify-content:flex-end;">
+                            {% if can('perfis.editar') %}
+                                <a href="{{ url('/perfis/editar/' ~ p.id) }}" class="btn-sm btn-warning">
+                                    Editar
+                                </a>
+                            {% endif %}
+
+                            {% if can('perfis.eliminar') %}
+                                <form method="post"
+                                      action="{{ url('/perfis/eliminar/' ~ p.id) }}"
+                                      onsubmit="return confirm('Tem a certeza que deseja eliminar este perfil?');">
+                                    <input type="hidden" name="_csrf" value="{{ csrf }}">
+                                    <button class="btn-sm btn-danger">Eliminar</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
         </tbody>
     </table>
 </div>

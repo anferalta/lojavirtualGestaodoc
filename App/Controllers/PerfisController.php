@@ -26,6 +26,7 @@ class PerfisController extends BaseController
     {
         echo $this->twig->render('perfis/index.twig', [
             'perfis' => $this->perfilModel->all(),
+            'csrf'   => Sessao::csrf(),
         ]);
     }
 
@@ -48,13 +49,12 @@ class PerfisController extends BaseController
             return Helpers::redirecionar('/perfis/criar');
         }
 
-        $nome        = trim($_POST['nome'] ?? '');
-        $descricao   = trim($_POST['descricao'] ?? '');
-        $estado      = $_POST['estado'] ?? 'ativo';
-        $permissoes  = $_POST['permissoes'] ?? [];
+        $nome       = trim($_POST['nome'] ?? '');
+        $descricao  = trim($_POST['descricao'] ?? '');
+        $estado     = $_POST['estado'] ?? 'ativo';
+        $permissoes = $_POST['permissoes'] ?? [];
 
         $v = new Validator();
-
         $v->required('nome', $nome, 'O nome é obrigatório.');
         $v->min('nome', $nome, 3, 'O nome deve ter pelo menos 3 caracteres.');
         $v->in('estado', $estado, ['ativo', 'inativo'], 'Estado inválido.');
@@ -78,7 +78,7 @@ class PerfisController extends BaseController
         ]);
 
         $perfilId = Conexao::getInstancia()->lastInsertId();
-        $this->perfilModel->syncPermissions($perfilId, $permissoes);
+        $this->perfilModel->syncPermissions($perfilId, array_map('intval', $permissoes));
 
         Sessao::flash('Perfil criado com sucesso.', 'success');
         Helpers::redirecionar('/perfis');
@@ -117,13 +117,12 @@ class PerfisController extends BaseController
             return Helpers::redirecionar('/perfis');
         }
 
-        $nome        = trim($_POST['nome'] ?? '');
-        $descricao   = trim($_POST['descricao'] ?? '');
-        $estado      = $_POST['estado'] ?? 'ativo';
-        $permissoes  = $_POST['permissoes'] ?? [];
+        $nome       = trim($_POST['nome'] ?? '');
+        $descricao  = trim($_POST['descricao'] ?? '');
+        $estado     = $_POST['estado'] ?? 'ativo';
+        $permissoes = $_POST['permissoes'] ?? [];
 
         $v = new Validator();
-
         $v->required('nome', $nome, 'O nome é obrigatório.');
         $v->min('nome', $nome, 3, 'O nome deve ter pelo menos 3 caracteres.');
         $v->in('estado', $estado, ['ativo', 'inativo'], 'Estado inválido.');
@@ -146,7 +145,7 @@ class PerfisController extends BaseController
             'estado'    => $estado,
         ]);
 
-        $this->perfilModel->syncPermissions($id, $permissoes);
+        $this->perfilModel->syncPermissions($id, array_map('intval', $permissoes));
 
         Sessao::flash('Perfil atualizado com sucesso.', 'success');
         Helpers::redirecionar('/perfis');

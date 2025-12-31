@@ -14,59 +14,62 @@
 
 <div class="card" style="padding: 25px;">
 
-    {% if form_errors %}
-        <div class="alert alert-danger" style="margin-bottom: 20px;">
-            <strong>Foram encontrados erros:</strong>
-            <ul style="margin-top: 10px;">
-                {% for erro in form_errors %}
-                    <li>{{ erro }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
+    <form method="post"
+          action="{{ acao == 'criar'
+              ? url('/utilizadores/criar')
+              : url('/utilizadores/editar/' ~ user.id) }}">
 
-    <form method="post" action="{{ acao == 'criar'
-        ? url('/utilizadores/criar')
-        : url('/utilizadores/editar/' ~ user.id) }}">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
 
-        <input type="hidden" name="_csrf" value="{{ csrf() }}">
+        {# NOME #}
+        {% include 'components/input.twig' with {
+            label: 'Nome',
+            name: 'nome',
+            value: form_old.nome ?? user.nome ?? '',
+            errors: form_errors,
+            placeholder: 'Nome completo'
+        } %}
 
-        <!-- NOME -->
-        <div class="form-group" style="margin-bottom: 18px;">
-            <label class="form-label">Nome</label>
-            <input type="text" name="nome" class="form-input"
-                   value="{{ form_old.nome ?? user.nome ?? '' }}" required>
-        </div>
+        {# EMAIL #}
+        {% include 'components/input.twig' with {
+            label: 'Email',
+            name: 'email',
+            type: 'email',
+            value: form_old.email ?? user.email ?? '',
+            errors: form_errors,
+            placeholder: 'email@exemplo.com'
+        } %}
 
-        <!-- EMAIL -->
-        <div class="form-group" style="margin-bottom: 18px;">
-            <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-input"
-                   value="{{ form_old.email ?? user.email ?? '' }}" required>
-        </div>
-
-        <!-- SENHA -->
+        {# SENHA #}
         {% if acao == 'criar' %}
-            <div class="form-group" style="margin-bottom: 18px;">
-                <label class="form-label">Senha</label>
-                <input type="password" name="senha" class="form-input" required>
-            </div>
+            {% include 'components/input.twig' with {
+                label: 'Senha',
+                name: 'senha',
+                type: 'password',
+                errors: form_errors
+            } %}
         {% else %}
-            <div class="form-group" style="margin-bottom: 18px;">
-                <label class="form-label">Nova senha (opcional)</label>
-                <input type="password" name="nova_senha" class="form-input">
-            </div>
+            {% include 'components/input.twig' with {
+                label: 'Nova senha (opcional)',
+                name: 'nova_senha',
+                type: 'password',
+                errors: form_errors
+            } %}
 
-            <div class="form-group" style="margin-bottom: 18px;">
-                <label class="form-label">Confirmar nova senha</label>
-                <input type="password" name="nova_senha2" class="form-input">
-            </div>
+            {% include 'components/input.twig' with {
+                label: 'Confirmar nova senha',
+                name: 'nova_senha2',
+                type: 'password',
+                errors: form_errors
+            } %}
         {% endif %}
 
-        <!-- NÍVEL -->
-        <div class="form-group" style="margin-bottom: 18px;">
+        {# NÍVEL #}
+        <div class="form-group">
             <label class="form-label">Nível</label>
+
             {% set nivel_atual = form_old.nivel ?? user.nivel ?? 1 %}
+
             <select name="nivel" class="form-input">
                 {% for n in [1,2,3] %}
                     <option value="{{ n }}" {{ n == nivel_atual ? 'selected' : '' }}>
@@ -74,20 +77,29 @@
                     </option>
                 {% endfor %}
             </select>
+
+            {% if error(form_errors, 'nivel') %}
+                <div class="form-error">{{ error(form_errors, 'nivel') }}</div>
+            {% endif %}
         </div>
 
-        <!-- ESTADO -->
-        <div class="form-group" style="margin-bottom: 18px;">
+        {# ESTADO #}
+        <div class="form-group">
             <label class="form-label">Estado</label>
+
             {% set estado_atual = form_old.estado ?? user.estado ?? 1 %}
+
             <select name="estado" class="form-input">
                 <option value="1" {{ estado_atual == 1 ? 'selected' : '' }}>Ativo</option>
                 <option value="0" {{ estado_atual == 0 ? 'selected' : '' }}>Inativo</option>
             </select>
+
+            {% if error(form_errors, 'estado') %}
+                <div class="form-error">{{ error(form_errors, 'estado') }}</div>
+            {% endif %}
         </div>
 
-        <!-- BOTÕES -->
-        <div style="display: flex; justify-content: space-between; margin-top: 25px;">
+        <div style="display:flex; justify-content:space-between; margin-top:25px;">
             <a href="{{ url('/utilizadores') }}" class="btn-sm btn-warning">
                 Voltar
             </a>
