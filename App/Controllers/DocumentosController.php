@@ -1,16 +1,16 @@
 <?php
 
-namespace app\Controllers;
+namespace App\Controllers;
 
-use app\Core\BaseController;
-use app\Core\Conexao;
-use app\Core\Documento;
-use app\Core\Validator;
-use app\Core\Sessao;
-use app\Core\Helpers;
-use app\Core\Upload;
-use app\Core\Auth;
-use app\Core\Acl;
+use App\Core\BaseController;
+use App\Core\Conexao;
+use App\Core\Documento;
+use App\Core\Validator;
+use App\Core\Sessao;
+use App\Core\Helpers;
+use App\Core\Upload;
+use App\Core\Auth;
+use App\Core\Acl;
 
 class DocumentosController extends BaseController
 {
@@ -142,7 +142,7 @@ class DocumentosController extends BaseController
         }
 
         header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
+        header('Content-Type: Application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($doc->caminho) . '"');
         header('Content-Length: ' . filesize($absolute));
         header('Cache-Control: no-cache, must-revalidate');
@@ -182,7 +182,7 @@ class DocumentosController extends BaseController
         }
 
         if ($ext === 'pdf') {
-            header('Content-Type: application/pdf');
+            header('Content-Type: Application/pdf');
             readfile($absolute);
             exit;
         }

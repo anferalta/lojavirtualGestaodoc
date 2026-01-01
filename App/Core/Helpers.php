@@ -1,15 +1,15 @@
 <?php
 
-namespace app\Core;
+namespace App\Core;
 
 class Helpers
 {
     /**
-     * Gera uma URL absoluta baseada no app_URL do .env
+     * Gera uma URL absoluta baseada no App_URL do .env
      */
     public static function url(string $path = ''): string
     {
-        $base = rtrim($_ENV['app_URL'] ?? 'http://localhost', '/');
+        $base = rtrim($_ENV['App_URL'] ?? 'http://localhost', '/');
         $path = '/' . ltrim($path, '/');
 
         return $base . $path;

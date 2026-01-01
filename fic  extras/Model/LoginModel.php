@@ -1,5 +1,5 @@
 <?php
-namespace app\Model;
+namespace App\Model;
 
 use app\Core\Conexao;
 use PDO;

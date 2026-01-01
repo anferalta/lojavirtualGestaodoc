@@ -1,13 +1,13 @@
 <?php
 
-namespace app\Controllers;
+namespace App\Controllers;
 
-use app\Core\BaseController;
-use app\Core\Auth;
-use app\Core\Conexao;
-use app\Core\Usuario;
-use app\Core\Sessao;
-use app\Core\Helpers;
+use App\Core\BaseController;
+use App\Core\Auth;
+use App\Core\Conexao;
+use App\Core\Usuario;
+use App\Core\Sessao;
+use App\Core\Helpers;
 use OTPHP\TOTP;
 
 class TwoFactorController extends BaseController {

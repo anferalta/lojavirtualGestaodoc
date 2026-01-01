@@ -109,10 +109,6 @@ class ComposerStaticInit6a6772df2521c6860a448e9115f2793a
     );
 
     public static $prefixLengthsPsr4 = array (
-        'a' =>
-        array (
-            'app\\' => 4,
-        ),
         'T' =>
         array (
             'Twig\\' => 5,
@@ -145,14 +141,11 @@ class ComposerStaticInit6a6772df2521c6860a448e9115f2793a
         'A' =>
         array (
             'Assert\\' => 7,
+            'App\\' => 4,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'app\\' =>
-        array (
-            0 => __DIR__ . '/../..' . '/app',
-        ),
         'Twig\\' =>
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
@@ -202,6 +195,10 @@ class ComposerStaticInit6a6772df2521c6860a448e9115f2793a
         'Assert\\' =>
         array (
             0 => __DIR__ . '/..' . '/beberlei/assert/lib/Assert',
+        ),
+        'App\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/app',
         ),
     );
 

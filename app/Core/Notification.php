@@ -1,9 +1,9 @@
 <?php
 
-namespace app\Core;
+namespace App\Core;
 
-use app\Core\Conexao;
-use app\Core\Auth;
+use App\Core\Conexao;
+use App\Core\Auth;
 use PDO;
 
 class Notification

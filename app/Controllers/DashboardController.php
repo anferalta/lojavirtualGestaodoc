@@ -1,10 +1,10 @@
 <?php
 
-namespace app\Controllers;
+namespace App\Controllers;
 
-use app\Core\BaseController;
-use app\Core\Conexao;
-use app\Core\Auth;
+use App\Core\BaseController;
+use App\Core\Conexao;
+use App\Core\Auth;
 use PDO;
 
 class DashboardController extends BaseController

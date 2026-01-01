@@ -1,13 +1,13 @@
 <?php
 
-namespace app\Controllers;
+namespace App\Controllers;
 
-use app\Core\BaseController;
-use app\Core\Auth;
-use app\Core\Conexao;
-use app\Models\Utilizador;
-use app\Models\Documento;
-use app\Models\Perfil;
+use App\Core\BaseController;
+use App\Core\Auth;
+use App\Core\Conexao;
+use App\Models\Utilizador;
+use App\Models\Documento;
+use App\Models\Perfil;
 
 class PainelController extends BaseController
 {

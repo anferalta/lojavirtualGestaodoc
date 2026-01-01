@@ -1,9 +1,9 @@
 <?php
-namespace app\Controllers;
+namespace App\Controllers;
 
-use app\Core\BaseController;
-use app\Core\Conexao;
-use app\Core\Helpers;
+use App\Core\BaseController;
+use App\Core\Conexao;
+use App\Core\Helpers;
 
 class ProfileController extends BaseController
 {

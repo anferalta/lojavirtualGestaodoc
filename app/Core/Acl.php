@@ -1,8 +1,8 @@
 <?php
 
-namespace app\Core;
+namespace App\Core;
 
-use app\Core\Conexao;
+use App\Core\Conexao;
 use PDO;
 
 class Acl

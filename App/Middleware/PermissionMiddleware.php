@@ -1,9 +1,9 @@
 <?php
 
-namespace app\Middlewares;
+namespace App\Middlewares;
 
-use app\Core\Acl;
-use app\Controllers\ErrorController;
+use App\Core\Acl;
+use App\Controllers\ErrorController;
 
 class PermissaoMiddleware
 {

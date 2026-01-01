@@ -1,13 +1,13 @@
 <?php
 
-namespace app\Core;
+namespace App\Core;
 
 use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
 use Twig\TwigFunction;
-use app\Core\Sessao;
-use app\Core\Menu;
-use app\Core\Helpers;
+use App\Core\Sessao;
+use App\Core\Menu;
+use App\Core\Helpers;
 
 class BaseController {
 

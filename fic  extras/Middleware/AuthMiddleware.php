@@ -1,9 +1,9 @@
 <?php
-namespace app\Middleware;
+namespace App\Middleware;
 
-use app\Core\Auth;
-use app\Core\Helpers;
-use app\Core\Sessao;
+use App\Core\Auth;
+use App\Core\Helpers;
+use App\Core\Sessao;
 
 class AuthMiddleware
 {

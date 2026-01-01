@@ -1,19 +1,23 @@
 <?php
 
-namespace app\Controllers;
+namespace App\Controllers;
 
-use app\Core\BaseController;
+use App\Core\TwigBootstrap;
 
-class ErrorController extends BaseController
+class ErrorController
 {
+    protected $twig;
+
+    public function __construct()
+    {
+        $this->twig = TwigBootstrap::init();
+    }
+
     public function error404(): void
     {
         http_response_code(404);
 
-        echo $this->twig->render('errors/404.twig', [
-            'titulo' => 'Página não encontrada',
-            'codigo' => 404
-        ]);
+        echo $this->twig->render('errors/404.twig');
     }
 
     public function error403(): void
@@ -37,7 +41,7 @@ class ErrorController extends BaseController
     }
 
     /**
-     * Fallback genérico (opcional)
+     * Fallback genérico
      */
     public function error(int $codigo = 500): void
     {
@@ -45,7 +49,7 @@ class ErrorController extends BaseController
 
         $view = "errors/{$codigo}.twig";
 
-        if (!file_exists(__DIR__ . "/../../views/errors/{$codigo}.twig")) {
+        if (!file_exists(BASE_PATH . "/views/errors/{$codigo}.twig")) {
             $view = "errors/500.twig";
             $codigo = 500;
         }

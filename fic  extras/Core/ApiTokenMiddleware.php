@@ -1,5 +1,5 @@
 <?php
-namespace app\Middleware;
+namespace App\Middleware;
 
 use app\Core\Conexao;
 

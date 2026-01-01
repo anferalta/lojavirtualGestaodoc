@@ -1,8 +1,8 @@
 <?php
-namespace app\Middleware;
+namespace App\Middleware;
 
-use app\Core\Auth;
-use app\Core\Helpers;
+use App\Core\Auth;
+use App\Core\Helpers;
 
 class TwoFactorMiddleware
 {

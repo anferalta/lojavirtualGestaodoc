@@ -1,8 +1,8 @@
 <?php
-namespace app\Controllers;
+namespace App\Controllers;
 
-use app\Core\BaseController;
-use app\Core\Log;
+use App\Core\BaseController;
+use App\Core\Log;
 
 class LogController extends BaseController
 {

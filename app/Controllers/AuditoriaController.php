@@ -1,9 +1,9 @@
 <?php
 
-namespace app\Controllers;
+namespace App\Controllers;
 
-use app\Core\BaseController;
-use app\Core\Conexao;
+use App\Core\BaseController;
+use App\Core\Conexao;
 use PDO;
 
 class AuditoriaController extends BaseController

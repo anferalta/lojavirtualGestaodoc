@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use app\Core\Conexao;
+use App\Core\Conexao;
 
 $permissoes = [
     ['utilizadores.ver', 'Ver utilizadores', 'Utilizadores'],
