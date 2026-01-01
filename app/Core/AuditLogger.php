@@ -12,19 +12,25 @@ class AuditLogger
     {
         $db = Conexao::getInstancia();
 
-        $sql = "INSERT INTO auditoria (utilizador_id, acao, detalhe, ip, user_agent)
-                VALUES (:uid, :acao, :detalhe, :ip, :ua)";
+        $sql = "INSERT INTO auditoria (utilizador_id, acao, detalhe, ip, user_agent, criado_em)
+                VALUES (:uid, :acao, :detalhe, :ip, :ua, :criado)";
 
         $stmt = $db->prepare($sql);
 
         $user = Auth::user();
 
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR']
+            ?? $_SERVER['HTTP_CLIENT_IP']
+            ?? $_SERVER['REMOTE_ADDR']
+            ?? null;
+
         $stmt->execute([
             ':uid'     => $user->id ?? null,
             ':acao'    => $acao,
             ':detalhe' => $detalhe,
-            ':ip'      => $_SERVER['REMOTE_ADDR'] ?? null,
+            ':ip'      => $ip,
             ':ua'      => $_SERVER['HTTP_USER_AGENT'] ?? null,
+            ':criado'  => date('Y-m-d H:i:s'),
         ]);
     }
 }
