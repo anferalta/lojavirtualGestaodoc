@@ -3,6 +3,7 @@
 namespace App\Core;
 
 use App\Core\Conexao;
+use App\Core\Auth;   // ← IMPORTANTE
 use PDO;
 
 class Acl
@@ -10,6 +11,7 @@ class Acl
     public static function can(string $chave): bool
     {
         $user = Auth::user();
+
         if (!$user || !$user->perfil_id) {
             return false;
         }
