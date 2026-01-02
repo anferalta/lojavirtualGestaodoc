@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Painel{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ asset('css/painel.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="logo">📁 Gestão Documental</span>
+        </div>
+
+        <nav class="menu">
+
+            {# DASHBOARD #}
+            <a href="{{ url('/painel') }}"
+               class="menu-item {{ app.request.uri starts with '/painel' ? 'active' }}">
+                <span class="icon">🏠</span> Dashboard
+            </a>
+
+            {# UTILIZADORES #}
+            {% if acl.can('utilizadores.ver') %}
+                <a href="{{ url('/utilizadores') }}"
+                   class="menu-item {{ app.request.uri starts with '/utilizadores' ? 'active' }}">
+                    <span class="icon">👤</span> Utilizadores
+                </a>
+            {% endif %}
+
+            {# DOCUMENTOS #}
+            {% if acl.can('documentos.ver') %}
+                <a href="{{ url('/documentos') }}"
+                   class="menu-item {{ app.request.uri starts with '/documentos' ? 'active' }}">
+                    <span class="icon">📄</span> Documentos
+                </a>
+            {% endif %}
+
+            {# PERFIS #}
+            {% if acl.can('perfis.ver') %}
+                <a href="{{ url('/perfis') }}"
+                   class="menu-item {{ app.request.uri starts with '/perfis' ? 'active' }}">
+                    <span class="icon">🔐</span> Perfis
+                </a>
+            {% endif %}
+
+            {# LOGS #}
+            {% if acl.can('logs.ver') %}
+                <a href="{{ url('/logs') }}"
+                   class="menu-item {{ app.request.uri starts with '/logs' ? 'active' }}">
+                    <span class="icon">📝</span> Logs
+                </a>
+            {% endif %}
+
+        </nav>
+    </aside>
+
+    {# NOTIFICAÇÕES DO UTILIZADOR #}
+    {% set notificacoes = notificacoes_nao_lidas ?? [] %}
+
+    <div class="navbar-right">
+        <div class="notifications-dropdown">
+            <button class="notifications-button">
+                🔔
+                {% if notificacoes|length > 0 %}
+                    <span class="badge badge-danger">{{ notificacoes|length }}</span>
+                {% endif %}
+            </button>
+
+            {% if notificacoes %}
+                <div class="notifications-menu">
+                    {% for n in notificacoes %}
+                        <div class="notification-item">
+                            <div class="notification-title">{{ n.titulo }}</div>
+                            <div class="notification-message">{{ n.mensagem }}</div>
+                            <div class="notification-meta">{{ n.criado_em }}</div>
+                        </div>
+                    {% endfor %}
+                    <a href="{{ url('/notificacoes') }}" class="notifications-link">Ver todas</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- MAIN AREA -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="btn-toggle" onclick="document.body.classList.toggle('sidebar-collapsed')">
+                    ☰
+                </button>
+            </div>
+
+            <div class="topbar-right">
+                <span class="user">{{ usuario_nome }}</span>
+                <a href="{{ url('/logout') }}" class="logout">Sair</a>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="content-area">
+            {% include 'partials/flash.twig' %}
+            {% block content %}{% endblock %}
+        </main>
+
+    </div>
+
+</body>
+</html>

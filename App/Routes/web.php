@@ -109,3 +109,4 @@ Route::get('/perfis/editar/{id}', 'PerfisController@editar', ['perm:perfis.edita
 Route::post('/perfis/update/{id}', 'PerfisController@update', ['perm:perfis.editar', 'csrf']);
 
 Route::get('/perfis/eliminar/{id}', 'PerfisController@delete', ['perm:perfis.eliminar']);
+

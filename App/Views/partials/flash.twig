@@ -1,8 +1,5 @@
-{% set flash_msg = sessao.flash() %}
-{% include 'partials/flash.twig' %}
-
 {% if flash %}
-    <div class="alert alert-{{ flash.tipo }}">
-        {{ flash.msg }}
+    <div class="flash flash-{{ flash.type|default('info') }}">
+        {{ flash.mensagem|default(flash) }}
     </div>
 {% endif %}

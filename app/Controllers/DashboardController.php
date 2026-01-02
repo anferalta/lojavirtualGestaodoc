@@ -4,8 +4,6 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Core\Conexao;
-use App\Core\Auth;
-use PDO;
 
 class DashboardController extends BaseController
 {
@@ -19,9 +17,8 @@ class DashboardController extends BaseController
             'ativos'       => (int)$db->query("SELECT COUNT(*) FROM utilizadores WHERE estado = 1")->fetchColumn(),
         ];
 
-        echo $this->twig->render('dashboard/index.twig', [
-            'user'  => Auth::user(),
-            'stats' => $stats,
+        $this->view('dashboard/index', [
+            'stats' => $stats
         ]);
     }
 }

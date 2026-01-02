@@ -4,18 +4,15 @@ define('BASE_PATH', dirname(__DIR__));
 
 require BASE_PATH . '/vendor/autoload.php';
 
+// Carregar variáveis de ambiente
 $dotenv = Dotenv\Dotenv::createImmutable(BASE_PATH);
 $dotenv->load();
 
+// Configurações globais
+require BASE_PATH . '/app/config.php';
+
+// Iniciar sessão (Sessao::start será chamado no BaseController)
 session_start();
 
-// Core
-require BASE_PATH . '/app/Core/Conexao.php';
-require BASE_PATH . '/app/Core/Helpers.php';
-require BASE_PATH . '/app/Core/Auth.php';
-require BASE_PATH . '/app/Core/Acl.php';
-require BASE_PATH . '/app/Core/Sessao.php';
-require BASE_PATH . '/app/Core/TwigBootstrap.php';
-
-// Router
+// Iniciar router
 require BASE_PATH . '/router.php';

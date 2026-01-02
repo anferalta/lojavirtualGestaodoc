@@ -1,27 +1,21 @@
-{% extends "layouts/painel.twig" %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Página não encontrada</title>
 
-{% block title %}Página não encontrada{% endblock %}
+    <!-- Caminho direto, sem asset() -->
+    <link rel="stylesheet" href="/public/css/painel.css">
+</head>
 
-{% block content %}
+<body class="error-page">
 
-<div class="card" style="padding: 40px; text-align: center;">
+    <div class="error-container">
+        <h1>404</h1>
+        <p>A página que procura não existe.</p>
 
-    <h1 style="font-size: 3rem; color: #f59e0b; margin-bottom: 10px;">
-        404
-    </h1>
+        <a href="/">Voltar ao início</a>
+    </div>
 
-    <h2 style="font-size: 1.6rem; margin-bottom: 15px;">
-        Página não encontrada
-    </h2>
-
-    <p style="color: #6b7280; font-size: 1rem; margin-bottom: 25px;">
-        A página que procura não existe ou foi movida.
-    </p>
-
-    <a href="{{ url('/painel') }}" class="btn-primary">
-        Voltar ao painel
-    </a>
-
-</div>
-
-{% endblock %}
+</body>
+</html>

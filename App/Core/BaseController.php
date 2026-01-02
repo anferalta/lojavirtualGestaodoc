@@ -2,72 +2,50 @@
 
 namespace App\Core;
 
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
-use Twig\TwigFunction;
+use App\Core\TwigBootstrap;
 use App\Core\Sessao;
-use App\Core\Acl;
+use App\Core\Auth;
+use App\Core\Notification;
 use App\Core\Helpers;
 
-class TwigBootstrap {
+abstract class BaseController {
 
-    public static function init(): Environment {
-        // Caminho correto para as views
-        $loader = new FilesystemLoader(BASE_PATH . '/app/Views');
+    protected $twig;
 
-        // Ambiente Twig
-        $twig = new Environment($loader, [
-            'cache' => false,
-            'debug' => true
+    public function __construct() {
+        Sessao::start();
+
+        $this->twig = TwigBootstrap::init();
+
+        // AUTH
+        $this->twig->addGlobal('auth', [
+            'check' => Auth::check(),
+            'user'  => Auth::user()
         ]);
 
-        /**
-         * ---------------------------------------------------------
-         * FUNÇÕES TWIG
-         * ---------------------------------------------------------
-         */
-        // URL helper
-        $twig->addFunction(new TwigFunction('url', function ($path = '') {
-                            return Helpers::url($path);
-                        }));
+        // NOME DO UTILIZADOR
+        $this->twig->addGlobal('usuario_nome', Auth::user()->nome ?? '');
 
-        // Asset helper
-        $twig->addFunction(new TwigFunction('asset', function ($path = '') {
-                            return Helpers::asset($path);
-                        }));
+        // NOTIFICAÇÕES (lazy loading sem arrays com closures)
+        $this->twig->addGlobal('notificacoes_unread', fn() => Notification::unreadForCurrent());
 
-        // CSRF token
-        $twig->addFunction(new TwigFunction('csrf', function () {
-                            return Sessao::csrf();
-                        }));
-
-        // Flash message
-        $twig->addFunction(new TwigFunction('flash', function () {
-                            return Sessao::flash();
-                        }));
-
-        // ACL: permissões
-        $twig->addFunction(new TwigFunction('can', function ($perm) {
-                            return Helpers::can($perm);
-                        }));
-
-        /**
-         * ---------------------------------------------------------
-         * VARIÁVEIS GLOBAIS
-         * ---------------------------------------------------------
-         */
-        // URI atual (para menus ativos)
-        $twig->addGlobal('app', [
-            'request' => [
-                'uri' => $_SERVER['REQUEST_URI'] ?? '/'
-            ]
+        // ACL
+        $this->twig->addGlobal('acl', [
+            'can' => fn($p) => Helpers::can($p)
         ]);
 
-        return $twig;
+        // ROTA ATUAL (para menus ativos)
+        $route = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+        $this->twig->addGlobal('app_route', $route);
     }
 
     protected function view(string $template, array $data = []): void {
         $data['flash'] = Sessao::getFlash();
         echo $this->twig->render($template . '.twig', $data);
+    }
+
+    protected function redirect(string $url): void {
+        header("Location: " . Helpers::url($url));
+        exit;
     }
 }
