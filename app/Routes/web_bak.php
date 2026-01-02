@@ -11,21 +11,17 @@ Route::get('/403', 'ErrorController@forbidden');
 Route::get('/404', 'ErrorController@notFound');
 
 
-/*
-|--------------------------------------------------------------------------
-| Rotas Públicas (sem autenticação)
-|--------------------------------------------------------------------------
-*/
-Route::get('/', 'LoginController@index');
-Route::get('/login', 'LoginController@index');
-Route::post('/login', 'LoginController@autenticar');
-Route::get('/logout', 'LoginController@logout');
+/* Rotas Públicas */
+Route::get('/', 'AuthController@loginForm');
+Route::get('/login', 'AuthController@loginForm');
+Route::post('/login', 'AuthController@login');
+Route::get('/logout', 'AuthController@logout');
 
-// Recuperação de senha
-Route::get('/recuperar', 'LoginController@recuperar');
-Route::post('/recuperar', 'LoginController@enviarRecuperacao');
-Route::get('/redefinir', 'LoginController@formRedefinir');
-Route::post('/redefinir', 'LoginController@redefinirSenha');
+/* Recuperação de senha */
+Route::get('/recuperar', 'AuthController@recuperar');
+Route::post('/recuperar', 'AuthController@enviarRecuperacao');
+Route::get('/redefinir', 'AuthController@formRedefinir');
+Route::post('/redefinir', 'AuthController@redefinirSenha');
 
 
 /*

@@ -52,7 +52,7 @@ class TwigBootstrap {
                         }));
 
         $twig->addFunction(new \Twig\TwigFunction('csrf', function () {
-                            return \App\Core\Csrf::token();
+                            return \App\Core\Sessao::csrf();
                         }));
 
         /*

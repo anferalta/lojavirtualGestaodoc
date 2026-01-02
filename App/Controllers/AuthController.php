@@ -5,7 +5,6 @@ namespace App\Controllers;
 use App\Core\BaseController;
 use App\Core\Auth;
 use App\Core\Sessao;
-use App\Core\Helpers;
 
 class AuthController extends BaseController
 {
@@ -14,7 +13,6 @@ class AuthController extends BaseController
      */
     public function loginForm(): void
     {
-        // Se já está autenticado, vai para o dashboard
         if (Auth::check()) {
             $this->redirect('dashboard');
         }
@@ -28,27 +26,29 @@ class AuthController extends BaseController
     public function login(): void
     {
         // Validar CSRF
-        if (!Sessao::validarCsrf($_POST['_csrf'] ?? '')) {
-            Sessao::flash('Token CSRF inválido.', 'error');
+        $token = $_POST['_csrf'] ?? '';
+        if (!Sessao::validarCsrf($token)) {
+            Sessao::flash('Sessão expirada. Por favor tente novamente.', 'error');
             $this->redirect('login');
         }
 
-        $email = trim($_POST['email'] ?? '');
+        // Normalizar inputs
+        $email = strtolower(trim($_POST['email'] ?? ''));
         $senha = trim($_POST['senha'] ?? '');
 
-        // Validação simples
+        // Validação
         if ($email === '' || $senha === '') {
             Sessao::flash('Preencha todos os campos.', 'warning');
             $this->redirect('login');
         }
 
-        // Tentar autenticar
+        // Autenticação
         if (!Auth::attempt($email, $senha)) {
             Sessao::flash('Credenciais inválidas.', 'error');
             $this->redirect('login');
         }
 
-        // Login OK
+        // Sucesso
         Sessao::flash('Bem-vindo de volta!', 'success');
         $this->redirect('dashboard');
     }
