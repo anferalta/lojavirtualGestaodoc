@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Core\Auth;
-use App\Core\Conexao;
 use App\Models\Utilizador;
 use App\Models\Documento;
 use App\Models\Perfil;
@@ -19,11 +18,9 @@ class PainelController extends BaseController
     {
         parent::__construct();
 
-        $db = Conexao::getInstancia();
-
-        $this->userModel   = new Utilizador($db);
-        $this->docModel    = new Documento($db);
-        $this->perfilModel = new Perfil($db);
+        $this->userModel   = new Utilizador();
+        $this->docModel    = new Documento();
+        $this->perfilModel = new Perfil();
     }
 
     public function index(): void

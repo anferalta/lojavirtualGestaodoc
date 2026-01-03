@@ -1,0 +1,22 @@
+{% extends "layouts/app.twig" %}
+
+{% block content %}
+<h2>Segurança da Conta</h2>
+
+<p><strong>Estado do 2FA:</strong>
+    {% if user.two_factor_ativo %}
+        <span style="color: green;">Ativo</span>
+    {% else %}
+        <span style="color: red;">Inativo</span>
+    {% endif %}
+</p>
+
+{% if user.two_factor_ativo %}
+    <form method="post" action="/2fa/desativar">
+        <button type="submit">Desativar 2FA</button>
+    </form>
+{% else %}
+    <a href="/2fa/ativar">Ativar 2FA</a>
+{% endif %}
+
+{% endblock %}

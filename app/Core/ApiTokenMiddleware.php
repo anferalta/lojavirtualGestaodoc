@@ -1,7 +1,7 @@
 <?php
 namespace App\Middleware;
 
-use app\Core\Conexao;
+use App\Core\Conexao;
 
 class ApiTokenMiddleware
 {
@@ -15,10 +15,13 @@ class ApiTokenMiddleware
 
     public static function handle(): void
     {
+        // Obter headers normalizados
         $headers = array_change_key_case(getallheaders(), CASE_LOWER);
+
+        // Extrair token
         $token = $headers['authorization'] ?? '';
 
-        if (str_starts_with($token, 'Bearer ')) {
+        if (str_starts_with($token, 'bearer ')) {
             $token = substr($token, 7);
         }
 
@@ -26,8 +29,9 @@ class ApiTokenMiddleware
             self::error('Token em falta');
         }
 
+        // Validar token na BD
         $db = Conexao::getInstancia();
-        $stm = $db->prepare("SELECT * FROM api_tokens WHERE token = :token");
+        $stm = $db->prepare("SELECT * FROM api_tokens WHERE token = :token LIMIT 1");
         $stm->execute(['token' => $token]);
         $row = $stm->fetch();
 
@@ -35,6 +39,7 @@ class ApiTokenMiddleware
             self::error('Token inválido');
         }
 
-        // Aqui poderias colocar user em contexto global se quiseres
+        // Opcional: colocar user/token no contexto global
+        // $_SESSION['api_user_id'] = $row['user_id'];
     }
 }

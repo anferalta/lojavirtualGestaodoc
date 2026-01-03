@@ -3,18 +3,19 @@
 namespace App\Controllers;
 
 use App\Core\BaseController;
-use App\Core\Conexao;
+use App\Models\Utilizador;
+use App\Models\Documento;
+use App\Models\Perfil;
 
 class DashboardController extends BaseController
 {
     public function index(): void
     {
-        $db = Conexao::getInstancia();
-
         $stats = [
-            'utilizadores' => (int)$db->query("SELECT COUNT(*) FROM utilizadores")->fetchColumn(),
-            'documentos'   => (int)$db->query("SELECT COUNT(*) FROM documentos")->fetchColumn(),
-            'ativos'       => (int)$db->query("SELECT COUNT(*) FROM utilizadores WHERE estado = 1")->fetchColumn(),
+            'utilizadores' => (new Utilizador())->count(),
+            'documentos'   => (new Documento())->count(),
+            'perfis'       => (new Perfil())->count(),
+            'ativos'       => (new Utilizador())->where('estado', '=', 1)->count(),
         ];
 
         $this->view('dashboard/index', [

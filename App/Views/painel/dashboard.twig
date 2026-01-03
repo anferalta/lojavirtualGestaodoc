@@ -12,19 +12,19 @@
 
     {% include 'components/card.twig' with {
         title: 'Utilizadores',
-        value: total_utilizadores,
+        value: stats.utilizadores,
         icon: '👤'
     } %}
 
     {% include 'components/card.twig' with {
         title: 'Documentos',
-        value: total_documentos,
+        value: stats.documentos,
         icon: '📁'
     } %}
 
     {% include 'components/card.twig' with {
         title: 'Perfis',
-        value: total_perfis,
+        value: stats.perfis,
         icon: '🔐'
     } %}
 

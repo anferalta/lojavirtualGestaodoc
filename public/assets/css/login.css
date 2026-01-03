@@ -98,6 +98,32 @@ body.login-body {
     font-size: 0.9rem;
 }
 
+.login-links {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.login-links a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.login-links a:hover {
+    text-decoration: underline;
+}
+.login-form button {
+    margin-bottom: 10px;
+}
+.login-links {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+
 .forgot-link:hover {
     text-decoration: underline;
 }

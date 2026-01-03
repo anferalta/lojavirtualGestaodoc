@@ -1,37 +1,19 @@
 <?php
 
-use App\Core\Auth;
-use App\Core\Sessao;
-use App\Core\Helpers;
-use App\Core\Acl;
 use App\Core\Middleware;
+use App\Middleware\AuthMiddleware;
+use App\Middleware\TwoFactorMiddleware;
 
-/**
- * Middleware de autenticação
- */
+/*
+|--------------------------------------------------------------------------
+| Registo de Middlewares
+|--------------------------------------------------------------------------
+*/
+
 Middleware::register('auth', function () {
-    if (!Auth::check()) {
-        Sessao::flash('É necessário autenticação.', 'danger');
-        header('Location: /login');
-        exit;
-    }
+    return new AuthMiddleware();
 });
 
-/**
- * Middleware de permissões
- */
-Middleware::register('perm', function ($permissionKey) {
-
-    if (!Auth::check()) {
-        Sessao::flash('É necessário autenticação.', 'danger');
-        header('Location: /login');
-        exit;
-    }
-
-    if (!Acl::can($permissionKey)) {
-        http_response_code(403);
-        Sessao::flash('Não tem permissão para aceder a esta área.', 'danger');
-        header('Location: /painel');
-        exit;
-    }
+Middleware::register('2fa', function () {
+    return new TwoFactorMiddleware();
 });
