@@ -56,53 +56,55 @@ class Route
      * Despachar rota
      */
     public static function dispatch(): void
-    {
-        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
-        $uri = rtrim($uri, '/') ?: '/';
+{
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
+    $uri = rtrim($uri, '/') ?: '/';
 
-        if (!isset(self::$routes[$method])) {
-            return self::abort404();
-        }
-
-        foreach (self::$routes[$method] as $route) {
-
-            $pattern = preg_replace('#\{([^}]+)\}#', '([^/]+)', $route['uri']);
-            $pattern = "#^" . $pattern . "$#";
-
-            if (preg_match($pattern, $uri, $matches)) {
-
-                array_shift($matches);
-
-                // Middlewares globais
-                if (!empty(self::$globalMiddlewares)) {
-                    Middleware::run(self::$globalMiddlewares);
-                }
-
-                // Middlewares da rota
-                if (!empty($route['middlewares'])) {
-                    Middleware::run($route['middlewares']);
-                }
-
-                [$controller, $action] = explode('@', $route['action']);
-                $controller = "app\\Controllers\\$controller";
-
-                if (!class_exists($controller)) {
-                    throw new \Exception("Controller $controller não encontrado.");
-                }
-
-                $instance = new $controller();
-
-                if (!method_exists($instance, $action)) {
-                    throw new \Exception("Método $action não existe no controller $controller.");
-                }
-
-                return $instance->$action(...$matches);
-            }
-        }
-
-        return self::abort404();
+    if (!isset(self::$routes[$method])) {
+        self::abort404();
     }
+
+    foreach (self::$routes[$method] as $route) {
+
+        $pattern = preg_replace('#\{([^}]+)\}#', '([^/]+)', $route['uri']);
+        $pattern = "#^" . $pattern . "$#";
+
+        if (preg_match($pattern, $uri, $matches)) {
+
+            array_shift($matches);
+
+            // Middlewares globais
+            if (!empty(self::$globalMiddlewares)) {
+                Middleware::run(self::$globalMiddlewares);
+            }
+
+            // Middlewares da rota
+            if (!empty($route['middlewares'])) {
+                Middleware::run($route['middlewares']);
+            }
+
+            [$controller, $action] = explode('@', $route['action']);
+            $controller = "App\\Controllers\\$controller";
+
+            if (!class_exists($controller)) {
+                throw new \Exception("Controller $controller não encontrado.");
+            }
+
+            $instance = new $controller();
+
+            if (!method_exists($instance, $action)) {
+                throw new \Exception("Método $action não existe no controller $controller.");
+            }
+
+            // chama o controller e termina
+            $instance->$action(...$matches);
+            return;
+        }
+    }
+
+    self::abort404();
+}
 
     /**
      * Página 404 customizada

@@ -15,4 +15,7 @@ require BASE_PATH . '/app/config.php';
 session_start();
 
 // Iniciar router
-require BASE_PATH . '/router.php';
+require BASE_PATH . '/app/Routes/web.php';
+require BASE_PATH . '/app/Routes/middlewares.php';
+
+\App\Core\Route::dispatch();

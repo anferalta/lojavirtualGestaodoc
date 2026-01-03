@@ -11,7 +11,11 @@ Route::get('/403', 'ErrorController@forbidden');
 Route::get('/404', 'ErrorController@notFound');
 
 
-/* Rotas Públicas */
+/*
+|--------------------------------------------------------------------------
+| Rotas Públicas (sem auth)
+|--------------------------------------------------------------------------
+*/
 Route::get('/', 'AuthController@loginForm');
 Route::get('/login', 'AuthController@loginForm');
 Route::post('/login', 'AuthController@login');
@@ -26,7 +30,20 @@ Route::post('/redefinir', 'AuthController@redefinirSenha');
 
 /*
 |--------------------------------------------------------------------------
-| Rotas protegidas por autenticação
+| Rotas autenticadas mas SEM 2FA obrigatório
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth']);
+
+Route::get('/2fa/ativar', 'TwoFactorController@ativar');
+Route::post('/2fa/confirmar', 'TwoFactorController@confirmar');
+Route::get('/2fa/validar', 'TwoFactorController@formValidar');
+Route::post('/2fa/validar', 'TwoFactorController@validarCodigo');
+
+
+/*
+|--------------------------------------------------------------------------
+| Rotas autenticadas + 2FA obrigatório
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', '2fa']);
@@ -46,18 +63,6 @@ Route::get('/painel/seguranca/dashboard', 'SegurancaController@index');
 
 /*
 |--------------------------------------------------------------------------
-| 2FA
-|--------------------------------------------------------------------------
-*/
-Route::get('/2fa/ativar', 'TwoFactorController@ativar');
-Route::post('/2fa/confirmar', 'TwoFactorController@confirmar');
-Route::get('/2fa/validar', 'TwoFactorController@formValidar');
-Route::post('/2fa/validar', 'TwoFactorController@validarCodigo');
-Route::post('/2fa/desativar', 'TwoFactorController@desativar', ['2fa']);
-
-
-/*
-|--------------------------------------------------------------------------
 | Documentos
 |--------------------------------------------------------------------------
 */
@@ -70,10 +75,7 @@ Route::post('/documentos/update/{id}', 'DocumentosController@update', ['perm:doc
 
 Route::get('/documentos/eliminar/{id}', 'DocumentosController@delete', ['perm:documentos.eliminar']);
 Route::get('/documentos/download/{id}', 'DocumentosController@download', ['perm:documentos.ver']);
-
-$router->get('/documentos/download/{id}', 'DocumentosController@download', ['auth', 'perm:documentos.ver']);
-
-$router->get('/documentos/preview/{id}', 'DocumentosController@preview', ['auth', 'perm:documentos.ver']);
+Route::get('/documentos/preview/{id}', 'DocumentosController@preview', ['perm:documentos.ver']);
 
 
 /*
@@ -105,4 +107,3 @@ Route::get('/perfis/editar/{id}', 'PerfisController@editar', ['perm:perfis.edita
 Route::post('/perfis/update/{id}', 'PerfisController@update', ['perm:perfis.editar', 'csrf']);
 
 Route::get('/perfis/eliminar/{id}', 'PerfisController@delete', ['perm:perfis.eliminar']);
-
