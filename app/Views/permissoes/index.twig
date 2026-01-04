@@ -1,0 +1,67 @@
+{% extends "layouts/painel.twig" %}
+
+{% block title %}Gestão de Permissões{% endblock %}
+
+{% block content %}
+
+<h1 class="page-title">Gestão de Permissões</h1>
+
+<form method="post" action="{{ url('/permissoes') }}">
+
+    <div class="form-group">
+        <label for="perfil">Selecione o Perfil</label>
+        <select name="perfil_id" id="perfil" class="form-control" onchange="this.form.submit()">
+            <option value="">-- Escolha um perfil --</option>
+            {% for perfil in perfis %}
+                <option value="{{ perfil.id }}"
+                    {% if perfil.id == app.request.get('perfil_id') %}selected{% endif %}>
+                    {{ perfil.nome }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    {% if app.request.get('perfil_id') %}
+        <div class="permissions-grid">
+
+            {% for permissao in permissoes %}
+                <label class="perm-item">
+                    <input type="checkbox"
+                           name="permissoes[]"
+                           value="{{ permissao.id }}"
+                           {% if perfilPermissoes[app.request.get('perfil_id')] is defined
+                                 and permissao.id in perfilPermissoes[app.request.get('perfil_id')] %}
+                                 checked
+                           {% endif %}
+                    >
+                    {{ permissao.nome }}
+                </label>
+            {% endfor %}
+
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Guardar Alterações</button>
+    {% endif %}
+
+</form>
+
+<style>
+    .permissions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .perm-item {
+        background: #fff;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
+
+{% endblock %}

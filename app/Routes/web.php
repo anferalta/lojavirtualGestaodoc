@@ -97,3 +97,20 @@ Route::get('/perfis/editar/{id}', 'PerfisController@editar', ['auth', '2fa', 'pe
 Route::post('/perfis/update/{id}', 'PerfisController@update', ['auth', '2fa', 'perm:perfis.editar', 'csrf']);
 
 Route::get('/perfis/eliminar/{id}', 'PerfisController@delete', ['auth', '2fa', 'perm:perfis.eliminar']);
+
+Route::get('/permissoes', 'PermissoesController@index', ['auth', '2fa', 'perm:permissoes.ver']);
+Route::post('/permissoes', 'PermissoesController@update', ['auth', '2fa', 'perm:permissoes.editar', 'csrf']);
+
+Route::get('/admin/perfis', 'PerfisAdminController@index', ['auth', '2fa', 'perm:perfis.ver']);
+Route::get('/admin/perfis/criar', 'PerfisAdminController@create', ['auth', '2fa', 'perm:perfis.criar']);
+Route::post('/admin/perfis/criar', 'PerfisAdminController@store', ['auth', '2fa', 'perm:perfis.criar', 'csrf']);
+Route::get('/admin/perfis/editar/{id}', 'PerfisAdminController@edit', ['auth', '2fa', 'perm:perfis.editar']);
+Route::post('/admin/perfis/editar/{id}', 'PerfisAdminController@update', ['auth', '2fa', 'perm:perfis.editar', 'csrf']);
+Route::get('/admin/perfis/eliminar/{id}', 'PerfisAdminController@delete', ['auth', '2fa', 'perm:perfis.eliminar']);
+
+Route::get('/admin/utilizadores', 'UtilizadoresAdminController@index', ['auth', '2fa', 'perm:utilizadores.ver']);
+Route::get('/admin/utilizadores/criar', 'UtilizadoresAdminController@create', ['auth', '2fa', 'perm:utilizadores.criar']);
+Route::post('/admin/utilizadores/criar', 'UtilizadoresAdminController@store', ['auth', '2fa', 'perm:utilizadores.criar', 'csrf']);
+Route::get('/admin/utilizadores/editar/{id}', 'UtilizadoresAdminController@edit', ['auth', '2fa', 'perm:utilizadores.editar']);
+Route::post('/admin/utilizadores/editar/{id}', 'UtilizadoresAdminController@update', ['auth', '2fa', 'perm:utilizadores.editar', 'csrf']);
+Route::get('/admin/utilizadores/eliminar/{id}', 'UtilizadoresAdminController@delete', ['auth', '2fa', 'perm:utilizadores.eliminar']);

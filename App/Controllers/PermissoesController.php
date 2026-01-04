@@ -3,152 +3,48 @@
 namespace App\Controllers;
 
 use App\Core\BaseController;
-use App\Core\Conexao;
-use App\Core\Permission;
-use App\Core\Validator;
-use App\Core\Sessao;
-use App\Core\Helpers;
+use App\Models\Perfil;
+use App\Models\Permissao;
+use App\Models\PerfilPermissao;
 
 class PermissoesController extends BaseController
 {
-    private Permission $permModel;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->permModel = new Permission(Conexao::getInstancia());
-    }
-
     public function index(): void
     {
-        echo $this->twig->render('permissoes/index.twig', [
-            'permissoes' => $this->permModel->all(),
-            'csrf'       => Sessao::csrf(),
+        $perfis = (new Perfil())->all();
+        $permissoes = (new Permissao())->all();
+
+        // Obter permissões atribuídas por perfil
+        $perfilPermissoes = (new PerfilPermissao())->allGrouped();
+
+        $this->view('permissoes/index', [
+            'perfis' => $perfis,
+            'permissoes' => $permissoes,
+            'perfilPermissoes' => $perfilPermissoes
         ]);
     }
 
-    public function criar(): void
+    public function update(): void
     {
-        echo $this->twig->render('permissoes/form.twig', [
-            'acao'        => 'criar',
-            'permissao'   => null,
-            'form_old'    => [],
-            'form_errors' => [],
-            'csrf'        => Sessao::csrf(),
-        ]);
-    }
+        $perfilId = $_POST['perfil_id'] ?? null;
+        $permissoes = $_POST['permissoes'] ?? [];
 
-    public function store(): void
-    {
-        if (!Sessao::validarCsrf($_POST['_csrf'] ?? '')) {
-            Sessao::flash('Token CSRF inválido.', 'danger');
-            return Helpers::redirecionar('/permissoes/criar');
+        if (!$perfilId) {
+            redirect('/permissoes');
         }
 
-        $chave     = trim($_POST['chave'] ?? '');
-        $nome      = trim($_POST['nome'] ?? '');
-        $categoria = trim($_POST['categoria'] ?? '');
+        // Apagar permissões antigas
+        (new PerfilPermissao())->deleteWhere('perfil_id', $perfilId);
 
-        $v = new Validator();
-        $v->required('chave', $chave, 'A chave é obrigatória.');
-        $v->required('nome', $nome, 'O nome é obrigatório.');
-        $v->min('chave', $chave, 3, 'A chave deve ter pelo menos 3 caracteres.');
-
-        if ($v->hasErrors()) {
-            echo $this->twig->render('permissoes/form.twig', [
-                'acao'        => 'criar',
-                'permissao'   => null,
-                'form_old'    => compact('chave', 'nome', 'categoria'),
-                'form_errors' => $v->getErrors(),
-                'csrf'        => Sessao::csrf(),
+        // Inserir novas permissões
+        foreach ($permissoes as $permId) {
+            (new PerfilPermissao())->create([
+                'perfil_id' => $perfilId,
+                'permissao_id' => $permId
             ]);
-            return;
         }
 
-        $this->permModel->create([
-            'chave'     => $chave,
-            'nome'      => $nome,
-            'categoria' => $categoria,
-        ]);
-
-        Sessao::flash('Permissão criada com sucesso.', 'success');
-        Helpers::redirecionar('/permissoes');
-    }
-
-    public function editar(int $id): void
-    {
-        $permissao = $this->permModel->find($id);
-
-        if (!$permissao) {
-            Sessao::flash('Permissão não encontrada.', 'danger');
-            return Helpers::redirecionar('/permissoes');
-        }
-
-        echo $this->twig->render('permissoes/form.twig', [
-            'acao'        => 'editar',
-            'permissao'   => $permissao,
-            'form_old'    => [],
-            'form_errors' => [],
-            'csrf'        => Sessao::csrf(),
-        ]);
-    }
-
-    public function update(int $id): void
-    {
-        if (!Sessao::validarCsrf($_POST['_csrf'] ?? '')) {
-            Sessao::flash('Token CSRF inválido.', 'danger');
-            return Helpers::redirecionar('/permissoes/editar/' . $id);
-        }
-
-        $permissao = $this->permModel->find($id);
-
-        if (!$permissao) {
-            Sessao::flash('Permissão não encontrada.', 'danger');
-            return Helpers::redirecionar('/permissoes');
-        }
-
-        $chave     = trim($_POST['chave'] ?? '');
-        $nome      = trim($_POST['nome'] ?? '');
-        $categoria = trim($_POST['categoria'] ?? '');
-
-        $v = new Validator();
-        $v->required('chave', $chave, 'A chave é obrigatória.');
-        $v->required('nome', $nome, 'O nome é obrigatório.');
-        $v->min('chave', $chave, 3, 'A chave deve ter pelo menos 3 caracteres.');
-
-        if ($v->hasErrors()) {
-            echo $this->twig->render('permissoes/form.twig', [
-                'acao'        => 'editar',
-                'permissao'   => $permissao,
-                'form_old'    => compact('chave', 'nome', 'categoria'),
-                'form_errors' => $v->getErrors(),
-                'csrf'        => Sessao::csrf(),
-            ]);
-            return;
-        }
-
-        $this->permModel->update($id, [
-            'chave'     => $chave,
-            'nome'      => $nome,
-            'categoria' => $categoria,
-        ]);
-
-        Sessao::flash('Permissão atualizada com sucesso.', 'success');
-        Helpers::redirecionar('/permissoes');
-    }
-
-    public function delete(int $id): void
-    {
-        $permissao = $this->permModel->find($id);
-
-        if (!$permissao) {
-            Sessao::flash('Permissão não encontrada.', 'danger');
-            return Helpers::redirecionar('/permissoes');
-        }
-
-        $this->permModel->delete($id);
-
-        Sessao::flash('Permissão eliminada com sucesso.', 'success');
-        Helpers::redirecionar('/permissoes');
+        flash('success', 'Permissões atualizadas com sucesso.');
+        redirect('/permissoes');
     }
 }
