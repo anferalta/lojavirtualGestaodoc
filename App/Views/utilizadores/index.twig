@@ -4,100 +4,45 @@
 
 {% block content %}
 
-<div class="page-header">
-    <h1 class="page-title">Utilizadores</h1>
+<h1 class="page-title">Utilizadores</h1>
 
-    {% if can('utilizadores.criar') %}
-        <a href="{{ url('/utilizadores/criar') }}" class="btn-primary">
-            Novo utilizador
-        </a>
-    {% endif %}
+<div class="actions-bar">
+    <a href="{{ url('/admin/utilizadores/criar') }}" class="btn btn-primary">Novo Utilizador</a>
 </div>
 
-<div class="table-wrapper">
-    <table class="modern-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Nível</th>
-                <th>Estado</th>
-                <th>Último login</th>
-                <th class="text-end">Ações</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% if utilizadores is empty %}
-                <tr>
-                    <td colspan="7" style="text-align:center; padding:20px;">
-                        Nenhum utilizador encontrado.
-                    </td>
-                </tr>
-            {% else %}
-                {% for u in utilizadores %}
-                    <tr>
-                        <td>{{ u.id }}</td>
-                        <td>{{ u.nome }}</td>
-                        <td>{{ u.email }}</td>
-
-                        <td>
-                            <span class="badge badge-info">
-                                {{ u.nivelLabel() }}
-                            </span>
-                        </td>
-
-                        <td>
-                            {% if u.isAtivo() %}
-                                <span class="badge badge-success">Ativo</span>
-                            {% else %}
-                                <span class="badge badge-danger">Inativo</span>
-                            {% endif %}
-                        </td>
-
-                        <td>{{ u.ultimoLogin() ?? '—' }}</td>
-
-                        <td class="text-end" style="display:flex; gap:6px; justify-content:flex-end;">
-
-                            {% if can('utilizadores.editar') %}
-                                <a href="{{ url('/utilizadores/editar/' ~ u.id) }}"
-                                   class="btn-sm btn-warning">
-                                    Editar
-                                </a>
-                            {% endif %}
-
-                            {% if can('utilizadores.eliminar') %}
-                                <form method="post"
-                                      action="{{ url('/utilizadores/eliminar/' ~ u.id) }}"
-                                      onsubmit="return confirm('Tem a certeza que deseja eliminar este utilizador?');">
-
-                                    <input type="hidden" name="_csrf" value="{{ csrf }}">
-
-                                    <button class="btn-sm btn-danger">
-                                        Apagar
-                                    </button>
-                                </form>
-                            {% endif %}
-
-                        </td>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
-</div>
-
-<div class="pagination-wrapper">
-    <ul class="pagination">
-        {% for p in 1..totalPaginas %}
-            <li class="page-item {{ p == pagina ? 'active' : '' }}">
-                <a class="page-link" href="{{ url('/utilizadores?pagina=' ~ p) }}">
-                    {{ p }}
+<table class="table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Perfil</th>
+        <th>Estado</th>
+        <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in utilizadores %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.nome }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.perfil_nome ?? '-' }}</td>
+            <td>{{ user.estado ? 'Ativo' : 'Inativo' }}</td>
+            <td>
+                <a href="{{ url('/admin/utilizadores/editar/' ~ user.id) }}" class="btn btn-sm btn-secondary">Editar</a>
+                <a href="{{ url('/admin/utilizadores/eliminar/' ~ user.id) }}" class="btn btn-sm btn-danger"
+                   onclick="return confirm('Tem a certeza que quer eliminar este utilizador?');">
+                    Eliminar
                 </a>
-            </li>
-        {% endfor %}
-    </ul>
-</div>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="6">Nenhum utilizador encontrado.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}

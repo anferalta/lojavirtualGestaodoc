@@ -24,35 +24,32 @@
                     <span class="icon">🏠</span> Dashboard
                 </a>
 
-                {# UTILIZADORES #}
                 {% if acl.can('utilizadores.ver') %}
-                    <a href="{{ url('/utilizadores') }}"
-                       class="menu-item {{ app.request.uri starts with '/utilizadores' ? 'active' }}">
-                        <span class="icon">👤</span> Utilizadores
-                    </a>
-                {% endif %}
+    <a href="{{ url('/admin/utilizadores') }}"
+       class="menu-item {{ app.request.uri starts with '/admin/utilizadores' ? 'active' }}">
+        <span class="icon">👤</span> Utilizadores
+    </a>
+{% endif %}
 
-                {# DOCUMENTOS #}
-                {% if acl.can('documentos.ver') %}
-                    <a href="{{ url('/documentos') }}"
-                       class="menu-item {{ app.request.uri starts with '/documentos' ? 'active' }}">
-                        <span class="icon">📄</span> Documentos
-                    </a>
-                {% endif %}
+{% if acl.can('perfis.ver') %}
+    <a href="{{ url('/admin/perfis') }}"
+       class="menu-item {{ app.request.uri starts with '/admin/perfis' ? 'active' }}">
+        <span class="icon">🛡️</span> Perfis
+    </a>
+{% endif %}
 
-                {# PERFIS #}
-                {% if acl.can('perfis.ver') %}
-                    <a href="{{ url('/perfis') }}"
-                       class="menu-item {{ app.request.uri starts with '/perfis' ? 'active' }}">
-                        <span class="icon">🔐</span> Perfis
-                    </a>
-                {% endif %}
+{% if acl.can('permissoes.ver') %}
+    <a href="{{ url('/permissoes') }}"
+       class="menu-item {{ app.request.uri starts with '/permissoes' ? 'active' }}">
+        <span class="icon">🔐</span> Permissões
+    </a>
+{% endif %}
 
-                {# LOGS #}
-                {% if acl.can('logs.ver') %}
-                    <a href="{{ url('/logs') }}"
-                       class="menu-item {{ app.request.uri starts with '/logs' ? 'active' }}">
-                        <span class="icon">📝</span> Logs
+                {# AUDITORIA DE PERMISSÕES #}
+                {% if acl.can('auditoria.ver') %}
+                    <a href="{{ url('/auditoria/permissoes') }}"
+                       class="menu-item {{ app.request.uri starts with '/auditoria/permissoes' ? 'active' }}">
+                        <span class="icon">📜</span> Auditoria
                     </a>
                 {% endif %}
 

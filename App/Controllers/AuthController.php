@@ -1,14 +1,15 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Core\BaseController;
 use App\Core\Auth;
 use App\Core\Sessao;
+use App\Core\Acl;
 
-class AuthController extends BaseController
-{
-    public function loginForm(): void
-    {
+class AuthController extends BaseController {
+
+    public function loginForm(): void {
         if (Auth::check()) {
             $this->redirect('/dashboard');
         }
@@ -16,8 +17,8 @@ class AuthController extends BaseController
         $this->view('auth/login');
     }
 
-    public function login(): void
-    {
+    public function login(): void {
+        
         // Validar CSRF
         $token = $_POST['_csrf'] ?? '';
         if (!Sessao::validarCsrf($token)) {
@@ -40,25 +41,21 @@ class AuthController extends BaseController
             $this->redirect('/login');
         }
 
-        // Obter utilizador autenticado
-        $user = Auth::user();
+        // Limpar cache ACL
+        Acl::flush();
 
-        // Se o 2FA estiver ativo e ainda não validado
-        if ($user->two_factor_ativo == 1 && !isset($_SESSION['2fa_validado'])) {
-            Sessao::flash('Confirme o código de autenticação.', 'info');
-            $this->redirect('/2fa/validar');
-        }
+        // Garantir que a sessão é gravada
+        session_write_close();
 
-        // Sucesso normal
+        // Redirecionar
         Sessao::flash('Bem-vindo de volta!', 'success');
         $this->redirect('/dashboard');
     }
 
-    public function logout(): void
-    {
-        Auth::logout();
-        unset($_SESSION['2fa_validado']);
-        Sessao::flash('Sessão terminada com sucesso.', 'info');
-        $this->redirect('/login');
+    public function logout() {
+        Acl::flush();      // ← limpa o cache do ACL
+        session_destroy(); // ← limpa a sessão
+        header("Location: /login");
+        exit;
     }
 }

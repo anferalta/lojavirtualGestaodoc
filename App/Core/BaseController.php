@@ -13,28 +13,47 @@ abstract class BaseController {
     protected $twig;
 
     public function __construct() {
+        // Iniciar sessão
         Sessao::start();
 
+        // Iniciar Twig
         $this->twig = TwigBootstrap::init();
 
-        // AUTH
+        /**
+         * AUTH — closures para garantir que Auth::user() e Auth::check()
+         * são sempre avaliados dinamicamente e nunca ficam em cache.
+         */
         $this->twig->addGlobal('auth', [
-            'check' => Auth::check(),
-            'user'  => Auth::user()
+            'check' => fn() => Auth::check(),
+            'user'  => fn() => Auth::user()
         ]);
 
-        // NOME DO UTILIZADOR
+        /**
+         * Nome do utilizador — variável simples (NÃO closure)
+         * Assim evita o erro "Unknown function usuario_nome".
+         */
         $this->twig->addGlobal('usuario_nome', Auth::user()->nome ?? '');
 
-        // NOTIFICAÇÕES (lazy loading sem arrays com closures)
+        /**
+         * Notificações — lazy loading via closure
+         */
         $this->twig->addGlobal('notificacoes_unread', fn() => Notification::unreadForCurrent());
 
-        // ACL
+        /**
+         * ACL — closure para garantir avaliação dinâmica
+         */
         $this->twig->addGlobal('acl', [
             'can' => fn($p) => Helpers::can($p)
         ]);
 
-        // ROTA ATUAL (para menus ativos)
+        /**
+         * CSRF — variável global
+         */
+        $this->twig->addGlobal('csrf', Sessao::csrf());
+
+        /**
+         * Rota atual — útil para menus ativos
+         */
         $route = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
         $this->twig->addGlobal('app_route', $route);
     }
