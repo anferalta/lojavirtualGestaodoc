@@ -10,7 +10,6 @@ use App\Core\Sessao;
 use App\Core\Helpers;
 use App\Core\Upload;
 use App\Core\Auth;
-use App\Core\Acl;
 
 class DocumentosController extends BaseController
 {
@@ -22,19 +21,25 @@ class DocumentosController extends BaseController
         $this->docModel = new Documento(Conexao::getInstancia());
     }
 
-    public function index(): void
+    /**
+     * Listagem de documentos
+     */
+    public function index()
     {
         $docs = $this->docModel->all();
 
-        echo $this->twig->render('documentos/index.twig', [
+        return $this->view('documentos/index.twig', [
             'documentos' => $docs,
             'csrf'       => Sessao::csrf(),
         ]);
     }
 
-    public function criar(): void
+    /**
+     * Formulário de criação
+     */
+    public function criar()
     {
-        echo $this->twig->render('documentos/form.twig', [
+        return $this->view('documentos/form.twig', [
             'acao'        => 'criar',
             'doc'         => null,
             'form_old'    => [],
@@ -43,16 +48,21 @@ class DocumentosController extends BaseController
         ]);
     }
 
-    public function store(): void
+    /**
+     * Guardar novo documento
+     */
+    public function store()
     {
+        // CSRF
         if (!Sessao::validarCsrf($_POST['_csrf'] ?? '')) {
             Sessao::flash('Token CSRF inválido.', 'danger');
-            return Helpers::redirecionar('/documentos/criar');
+            Helpers::redirecionar('/documentos/criar');
         }
 
         $titulo    = trim($_POST['titulo'] ?? '');
         $descricao = trim($_POST['descricao'] ?? '');
 
+        // Validação
         $v = new Validator();
         $v->required('titulo', $titulo, 'O título é obrigatório.');
         $v->min('titulo', $titulo, 3, 'O título deve ter pelo menos 3 caracteres.');
@@ -62,35 +72,30 @@ class DocumentosController extends BaseController
         }
 
         if ($v->hasErrors()) {
-            echo $this->twig->render('documentos/form.twig', [
+            return $this->view('documentos/form.twig', [
                 'acao'        => 'criar',
                 'doc'         => null,
                 'form_old'    => compact('titulo', 'descricao'),
                 'form_errors' => $v->getErrors(),
                 'csrf'        => Sessao::csrf(),
             ]);
-            return;
         }
 
+        // Upload
         try {
             $upload = new Upload();
             $relativePath = $upload->uploadFile($_FILES['ficheiro'], 'documentos');
-
         } catch (\RuntimeException $e) {
-            $errors = [
-                'ficheiro' => [$e->getMessage()],
-            ];
-
-            echo $this->twig->render('documentos/form.twig', [
+            return $this->view('documentos/form.twig', [
                 'acao'        => 'criar',
                 'doc'         => null,
                 'form_old'    => compact('titulo', 'descricao'),
-                'form_errors' => $errors,
+                'form_errors' => ['ficheiro' => [$e->getMessage()]],
                 'csrf'        => Sessao::csrf(),
             ]);
-            return;
         }
 
+        // Criar documento
         $user = Auth::user();
 
         $this->docModel->create([
@@ -105,13 +110,16 @@ class DocumentosController extends BaseController
         Helpers::redirecionar('/documentos');
     }
 
-    public function delete(int $id): void
+    /**
+     * Eliminar documento
+     */
+    public function delete(int $id)
     {
         $doc = $this->docModel->find($id);
 
         if (!$doc) {
             Sessao::flash('Documento não encontrado.', 'danger');
-            return Helpers::redirecionar('/documentos');
+            Helpers::redirecionar('/documentos');
         }
 
         $this->docModel->deleteWithFile($id);
@@ -120,13 +128,11 @@ class DocumentosController extends BaseController
         Helpers::redirecionar('/documentos');
     }
 
-    public function download(int $id): void
+    /**
+     * Download
+     */
+    public function download(int $id)
     {
-        if (!Acl::can('documentos.ver')) {
-            (new ErrorController())->error403();
-            return;
-        }
-
         $doc = $this->docModel->find($id);
 
         if (!$doc) {
@@ -142,7 +148,7 @@ class DocumentosController extends BaseController
         }
 
         header('Content-Description: File Transfer');
-        header('Content-Type: Application/octet-stream');
+        header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($doc->caminho) . '"');
         header('Content-Length: ' . filesize($absolute));
         header('Cache-Control: no-cache, must-revalidate');
@@ -152,13 +158,11 @@ class DocumentosController extends BaseController
         exit;
     }
 
-    public function preview(int $id): void
+    /**
+     * Preview (imagem ou PDF)
+     */
+    public function preview(int $id)
     {
-        if (!Acl::can('documentos.ver')) {
-            (new ErrorController())->error403();
-            return;
-        }
-
         $doc = $this->docModel->find($id);
 
         if (!$doc) {
@@ -182,7 +186,7 @@ class DocumentosController extends BaseController
         }
 
         if ($ext === 'pdf') {
-            header('Content-Type: Application/pdf');
+            header('Content-Type: application/pdf');
             readfile($absolute);
             exit;
         }
@@ -190,13 +194,11 @@ class DocumentosController extends BaseController
         (new ErrorController())->error403();
     }
 
-    public function show(int $id): void
+    /**
+     * Página de detalhes
+     */
+    public function show(int $id)
     {
-        if (!Acl::can('documentos.ver')) {
-            (new ErrorController())->error403();
-            return;
-        }
-
         $doc = $this->docModel->find($id);
 
         if (!$doc) {
@@ -223,7 +225,7 @@ class DocumentosController extends BaseController
             }
         }
 
-        echo $this->twig->render('documentos/show.twig', [
+        return $this->view('documentos/show.twig', [
             'doc'     => $doc,
             'preview' => $preview,
             'csrf'    => Sessao::csrf(),

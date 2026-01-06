@@ -17,9 +17,10 @@ Route::get('/404', 'ErrorController@notFound');
 |--------------------------------------------------------------------------
 */
 Route::get('/', 'AuthController@loginForm');
+Route::post('/login', 'AuthController@login', ['csrf']);
 Route::get('/login', 'AuthController@loginForm');
-Route::post('/login', 'AuthController@login');
 Route::get('/logout', 'AuthController@logout');
+
 
 /* Recuperação de senha */
 Route::get('/recuperar', 'AuthController@recuperar');
@@ -50,23 +51,61 @@ Route::get('/dashboard', 'DashboardController@index', ['auth', '2fa']);
 Route::get('/painel/seguranca', 'TwoFactorController@paginaSeguranca', ['auth', '2fa']);
 Route::get('/painel/seguranca/dashboard', 'SegurancaController@index', ['auth', '2fa']);
 
-
 /*
 |--------------------------------------------------------------------------
 | Documentos
 |--------------------------------------------------------------------------
+|
+| Todas as rotas protegidas por:
+| - auth  → utilizador autenticado
+| - 2fa   → segundo fator ativo
+| - acl   → permissões específicas
+|
 */
-Route::get('/documentos', 'DocumentosController@index', ['auth', '2fa', 'perm:documentos.ver']);
-Route::get('/documentos/upload', 'DocumentosController@upload', ['auth', '2fa', 'perm:documentos.criar']);
-Route::post('/documentos/store', 'DocumentosController@store', ['auth', '2fa', 'perm:documentos.criar', 'csrf']);
 
-Route::get('/documentos/editar/{id}', 'DocumentosController@editar', ['auth', '2fa', 'perm:documentos.editar']);
-Route::post('/documentos/update/{id}', 'DocumentosController@update', ['auth', '2fa', 'perm:documentos.editar', 'csrf']);
+# LISTAR DOCUMENTOS
+Route::get('/documentos', 'DocumentosController@index', [
+    'auth', '2fa', 'acl:documentos.ver'
+]);
 
-Route::get('/documentos/eliminar/{id}', 'DocumentosController@delete', ['auth', '2fa', 'perm:documentos.eliminar']);
-Route::get('/documentos/download/{id}', 'DocumentosController@download', ['auth', '2fa', 'perm:documentos.ver']);
-Route::get('/documentos/preview/{id}', 'DocumentosController@preview', ['auth', '2fa', 'perm:documentos.ver']);
+# FORMULÁRIO DE CRIAÇÃO
+Route::get('/documentos/criar', 'DocumentosController@criar', [
+    'auth', '2fa', 'acl:documentos.criar'
+]);
 
+# GUARDAR NOVO DOCUMENTO
+Route::post('/documentos/store', 'DocumentosController@store', [
+    'auth', '2fa', 'acl:documentos.criar', 'csrf'
+]);
+
+# EDITAR DOCUMENTO
+Route::get('/documentos/editar/{id}', 'DocumentosController@editar', [
+    'auth', '2fa', 'acl:documentos.editar'
+]);
+
+Route::post('/documentos/update/{id}', 'DocumentosController@update', [
+    'auth', '2fa', 'acl:documentos.editar', 'csrf'
+]);
+
+# ELIMINAR DOCUMENTO
+Route::get('/documentos/eliminar/{id}', 'DocumentosController@delete', [
+    'auth', '2fa', 'acl:documentos.eliminar'
+]);
+
+# DOWNLOAD
+Route::get('/documentos/download/{id}', 'DocumentosController@download', [
+    'auth', '2fa', 'acl:documentos.ver'
+]);
+
+# PREVIEW (imagem/pdf)
+Route::get('/documentos/preview/{id}', 'DocumentosController@preview', [
+    'auth', '2fa', 'acl:documentos.ver'
+]);
+
+# DETALHES DO DOCUMENTO
+Route::get('/documentos/{id}', 'DocumentosController@show', [
+    'auth', '2fa', 'acl:documentos.ver'
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -114,3 +153,4 @@ Route::post('/admin/utilizadores/criar', 'UtilizadoresAdminController@store', ['
 Route::get('/admin/utilizadores/editar/{id}', 'UtilizadoresAdminController@edit', ['auth', '2fa', 'perm:utilizadores.editar']);
 Route::post('/admin/utilizadores/editar/{id}', 'UtilizadoresAdminController@update', ['auth', '2fa', 'perm:utilizadores.editar', 'csrf']);
 Route::get('/admin/utilizadores/eliminar/{id}', 'UtilizadoresAdminController@delete', ['auth', '2fa', 'perm:utilizadores.eliminar']);
+

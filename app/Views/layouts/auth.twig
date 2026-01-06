@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Autenticação{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body class="auth-body">
+
+    <div class="auth-wrapper">
+
+        <div class="auth-card">
+
+            <div class="auth-header">
+                <h1 class="auth-title">📁 Gestão Documental</h1>
+                <p class="auth-subtitle">Aceda ao seu painel</p>
+            </div>
+
+            {% include 'partials/flash.twig' %}
+
+            {% block content %}{% endblock %}
+
+        </div>
+
+    </div>
+
+</body>
+</html>

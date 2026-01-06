@@ -1,0 +1,11 @@
+{% extends 'layouts/painel.twig' %}
+
+{% block content %}
+    <h1>Dashboard</h1>
+    <p>Bem-vindo, {{ usuario_nome }}!</p>
+    <div class="stat">Utilizadores: {{ total_utilizadores }}</div>
+    <div class="stat">Documentos: {{ total_documentos }}</div>
+    <div class="stat">Perfis: {{ total_perfis }}</div>
+    <div class="stat">Documentos hoje: {{ documentos_hoje }}</div>
+    <div class="stat">Documentos este mês: {{ documentos_mes }}</div>
+{% endblock %}

@@ -4,33 +4,32 @@ namespace App\Core;
 
 class Middleware
 {
-    private static array $middlewares = [];
-
-    public static function register(string $name, callable $callback): void
-    {
-        self::$middlewares[$name] = $callback;
-    }
-
     public static function run(array $middlewares): void
     {
         foreach ($middlewares as $mw) {
 
+            // Middleware com parâmetro (ex: "acl:documentos.ver")
             if (str_contains($mw, ':')) {
                 [$name, $param] = explode(':', $mw, 2);
-
-                if (!isset(self::$middlewares[$name])) {
-                    throw new \Exception("Middleware '$name' não registado.");
-                }
-
-                call_user_func(self::$middlewares[$name], $param);
-                continue;
+            } else {
+                $name = $mw;
+                $param = null;
             }
 
-            if (!isset(self::$middlewares[$mw])) {
-                throw new \Exception("Middleware '$mw' não registado.");
+            // Nome da classe (ex: App\Middleware\AuthMiddleware)
+            $class = "App\\Middleware\\" . ucfirst($name) . "Middleware";
+
+            if (!class_exists($class)) {
+                throw new \Exception("Middleware '$class' não encontrado.");
             }
 
-            call_user_func(self::$middlewares[$mw]);
+            $instance = new $class();
+
+            if ($param !== null) {
+                $instance->handle($param);
+            } else {
+                $instance->handle();
+            }
         }
     }
 }

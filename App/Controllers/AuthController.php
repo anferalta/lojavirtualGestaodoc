@@ -18,7 +18,7 @@ class AuthController extends BaseController {
     }
 
     public function login(): void {
-        
+        error_log("SESSION LOGIN: " . session_id());
         // Validar CSRF
         $token = $_POST['_csrf'] ?? '';
         if (!Sessao::validarCsrf($token)) {

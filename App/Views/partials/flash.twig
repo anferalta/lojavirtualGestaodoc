@@ -1,5 +1,9 @@
 {% if flash %}
-    <div class="flash flash-{{ flash.type|default('info') }}">
-        {{ flash.mensagem|default(flash) }}
-    </div>
+    {% if flash.error %}
+        <div class="alert alert-danger">{{ flash.error }}</div>
+    {% endif %}
+
+    {% if flash.success %}
+        <div class="alert alert-success">{{ flash.success }}</div>
+    {% endif %}
 {% endif %}

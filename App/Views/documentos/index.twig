@@ -7,8 +7,8 @@
 <div class="page-header">
     <h1 class="page-title">Documentos</h1>
 
-    {% if can('documentos.criar') %}
-        <a href="{{ url('/documentos/criar') }}" class="btn-primary">
+    {% if acl.can('documentos.criar') %}
+         <a href="{{ url('/documentos/criar') }}" class="btn btn-primary">Novo Documento</a>
             Carregar documento
         </a>
     {% endif %}
@@ -53,7 +53,7 @@
                     <td style="display:flex; gap:6px;">
 
                         {# 🔥 DOWNLOAD SEGURO (ACL) #}
-                        {% if can('documentos.ver') %}
+                        {% if acl.can('documentos.ver') %}
                             <a href="{{ url('/documentos/download/' ~ doc.id) }}"
                                class="btn-sm btn-primary">
                                 Download
@@ -61,7 +61,7 @@
                         {% endif %}
 
                         {# 🔥 EDITAR #}
-                        {% if can('documentos.editar') %}
+                        {% if acl.can('documentos.editar') %}
                             <a href="{{ url('/documentos/editar/' ~ doc.id) }}"
                                class="btn-sm btn-warning">
                                 Editar
@@ -69,7 +69,7 @@
                         {% endif %}
 
                         {# 🔥 APAGAR #}
-                        {% if can('documentos.eliminar') %}
+                        {% if acl.can('documentos.eliminar') %}
                             <form method="post"
                                   action="{{ url('/documentos/eliminar/' ~ doc.id) }}"
                                   onsubmit="return confirm('Tem a certeza que deseja eliminar este documento?');">

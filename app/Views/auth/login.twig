@@ -1,17 +1,25 @@
-{% extends 'layouts/login.twig' %}
+{% extends "layouts/auth.twig" %}
+
+{% block title %}Login{% endblock %}
 
 {% block content %}
-<form method="POST" action="/login">
+
+<form method="post" action="{{ url('/login') }}">
+
     <input type="hidden" name="_csrf" value="{{ csrf }}">
-    <input type="email" name="email" placeholder="Email" required autofocus>
-    <input type="password" name="senha" placeholder="Senha" required>
-    <button type="submit">Entrar</button>
+
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" class="form-input" placeholder="O seu email" required>
+    </div>
+
+    <div class="form-group">
+        <label>Palavra-passe</label>
+        <input type="password" name="password" class="form-input" placeholder="A sua palavra-passe" required>
+    </div>
+
+    <button class="btn-primary">Entrar</button>
+
 </form>
-    
-<div class="footer">
-    © {{ "now"|date("Y") }} Gestão Documental
-</div>
 
 {% endblock %}
-
-

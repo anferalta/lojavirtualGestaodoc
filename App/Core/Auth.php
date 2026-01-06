@@ -29,11 +29,17 @@ class Auth {
             return null;
         }
 
+        static $cachedUser = null;
+
+        if ($cachedUser) {
+            return $cachedUser;
+        }
+
         $db = Conexao::getInstancia();
         $stmt = $db->prepare("SELECT * FROM utilizadores WHERE id = :id LIMIT 1");
         $stmt->execute([':id' => $_SESSION['user_id']]);
 
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        return $cachedUser = $stmt->fetch(PDO::FETCH_OBJ);
     }
 
     public static function check(): bool {

@@ -6,7 +6,7 @@ use App\Core\Sessao;
 
 class CsrfMiddleware
 {
-    public static function handle(): void
+    public function handle(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 

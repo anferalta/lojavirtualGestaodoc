@@ -7,13 +7,28 @@ use App\Core\Auth;
 use App\Core\Sessao;
 use App\Core\TwoFactor;
 
-class TwoFactorController extends BaseController
-{
+class TwoFactorController extends BaseController {
+
     /**
      * Página onde o utilizador ativa o 2FA
      */
-    public function ativar(): void
-    {
+    public function handle(): void {
+        $user = Auth::user();
+
+        if (!$user)
+            return;
+
+        if (!$user->two_factor_ativo)
+            return;
+
+        if (!empty($_SESSION['2fa_validado']))
+            return;
+
+        header('Location: /2fa/validar');
+        exit;
+    }
+
+    public function ativar(): void {
         $user = Auth::user();
 
         // Gerar secret e QR
@@ -32,8 +47,7 @@ class TwoFactorController extends BaseController
     /**
      * Confirmar ativação do 2FA
      */
-    public function confirmar(): void
-    {
+    public function confirmar(): void {
         $user = Auth::user();
         $codigo = trim($_POST['codigo'] ?? '');
 
@@ -63,22 +77,21 @@ class TwoFactorController extends BaseController
     /**
      * Formulário para validar o código 2FA após login
      */
-    public function formValidar(): void
-    {
+    public function formValidar(): void {
         $this->view('2fa/validar');
     }
 
     /**
      * Validar o código 2FA após login
      */
-    public function validarCodigo(): void
-    {
+    // Validar o código 2FA após login
+    public function validarCodigo(): void {
         $user = Auth::user();
         $codigo = trim($_POST['codigo'] ?? '');
 
         if (!$user->two_factor_ativo) {
             Sessao::flash('2FA não está ativo.', 'warning');
-            $this->redirect('/dashboard');
+            $this->redirect('/painel');
         }
 
         if (!TwoFactor::verify($user->two_factor_secret, $codigo)) {
@@ -90,14 +103,13 @@ class TwoFactorController extends BaseController
         $_SESSION['2fa_validado'] = true;
 
         Sessao::flash('Autenticação verificada com sucesso!', 'success');
-        $this->redirect('/dashboard');
+        $this->redirect('/painel');
     }
 
     /**
      * Desativar 2FA
      */
-    public function desativar(): void
-    {
+    public function desativar(): void {
         $user = Auth::user();
 
         $user->two_factor_ativo = 0;
@@ -113,8 +125,7 @@ class TwoFactorController extends BaseController
     /**
      * Página de segurança do painel
      */
-    public function paginaSeguranca(): void
-    {
+    public function paginaSeguranca(): void {
         $user = Auth::user();
 
         $this->view('painel/seguranca', [
