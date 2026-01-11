@@ -6,16 +6,24 @@ use App\Core\Sessao;
 
 class CsrfMiddleware
 {
-    public function handle(): void
+    public function handle()
     {
+        Sessao::start();
+
+        // Garante que o token existe
+        Sessao::csrf();
+
+        // Validar apenas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            $token = $_POST['_csrf'] ?? null;
+            $tokenEnviado = $_POST['_csrf'] ?? '';
 
-            if (!$token || !Sessao::validarCsrf($token)) {
-                http_response_code(419);
-                die('CSRF token inválido.');
+            if (!Sessao::validarCsrf($tokenEnviado)) {
+                http_response_code(403);
+                die('Token CSRF inválido');
             }
         }
+
+        return true;
     }
 }

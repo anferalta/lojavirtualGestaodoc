@@ -3,24 +3,22 @@
 use App\Core\Route;
 
 /*
-|--------------------------------------------------------------------------
-| Páginas de Erro
-|--------------------------------------------------------------------------
-*/
+  |--------------------------------------------------------------------------
+  | Páginas de Erro
+  |--------------------------------------------------------------------------
+ */
 Route::get('/403', 'ErrorController@forbidden');
 Route::get('/404', 'ErrorController@notFound');
 
-
 /*
-|--------------------------------------------------------------------------
-| Rotas Públicas (sem auth)
-|--------------------------------------------------------------------------
-*/
+  |--------------------------------------------------------------------------
+  | Rotas Públicas (sem autenticação)
+  |--------------------------------------------------------------------------
+ */
 Route::get('/', 'AuthController@loginForm');
-Route::post('/login', 'AuthController@login', ['csrf']);
 Route::get('/login', 'AuthController@loginForm');
+Route::post('/login', 'AuthController@login', ['csrf']);
 Route::get('/logout', 'AuthController@logout');
-
 
 /* Recuperação de senha */
 Route::get('/recuperar', 'AuthController@recuperar');
@@ -28,129 +26,153 @@ Route::post('/recuperar', 'AuthController@enviarRecuperacao');
 Route::get('/redefinir', 'AuthController@formRedefinir');
 Route::post('/redefinir', 'AuthController@redefinirSenha');
 
+/*
+  |--------------------------------------------------------------------------
+  | Rotas autenticadas (sem 2FA obrigatório)
+  |--------------------------------------------------------------------------
+ */
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('/2fa/ativar', 'TwoFactorController@ativar');
+    Route::post('/2fa/confirmar', 'TwoFactorController@confirmar');
+
+    Route::get('/2fa/validar', 'TwoFactorController@validarForm');
+    Route::post('/2fa/validar', 'TwoFactorController@validar');
+});
 
 /*
-|--------------------------------------------------------------------------
-| Rotas autenticadas mas SEM 2FA obrigatório
-|--------------------------------------------------------------------------
-*/
-Route::get('/2fa/ativar', 'TwoFactorController@ativar', ['auth']);
-Route::post('/2fa/confirmar', 'TwoFactorController@confirmar', ['auth']);
-Route::get('/2fa/validar', 'TwoFactorController@formValidar', ['auth']);
-Route::post('/2fa/validar', 'TwoFactorController@validarCodigo', ['auth']);
+  |--------------------------------------------------------------------------
+  | Rotas autenticadas + 2FA obrigatório
+  |--------------------------------------------------------------------------
+ */
+Route::group(['middleware' => ['auth', 'TwoFactorMiddleware']], function () {
 
+    /* Dashboard */
+    Route::get('/dashboard', 'DashboardController@index');
+    Route::get('/painel', 'DashboardController@index'); // Alias opcional
 
-/*
-|--------------------------------------------------------------------------
-| Rotas autenticadas + 2FA obrigatório
-|--------------------------------------------------------------------------
-*/
-Route::get('/painel', 'DashboardController@index', ['auth', '2fa']);
-Route::get('/dashboard', 'DashboardController@index', ['auth', '2fa']);
+    Route::get('/painel/seguranca', 'TwoFactorController@paginaSeguranca');
+    Route::get('/painel/seguranca/dashboard', 'SegurancaController@index');
 
-Route::get('/painel/seguranca', 'TwoFactorController@paginaSeguranca', ['auth', '2fa']);
-Route::get('/painel/seguranca/dashboard', 'SegurancaController@index', ['auth', '2fa']);
+    /*
+      |--------------------------------------------------------------------------
+      | Documentos
+      |--------------------------------------------------------------------------
+      | Protegido por:
+      | - auth
+      | - 2fa
+      | - acl:documentos.*
+      |--------------------------------------------------------------------------
+     */
+    Route::group(['prefix' => '/documentos'], function () {
 
-/*
-|--------------------------------------------------------------------------
-| Documentos
-|--------------------------------------------------------------------------
-|
-| Todas as rotas protegidas por:
-| - auth  → utilizador autenticado
-| - 2fa   → segundo fator ativo
-| - acl   → permissões específicas
-|
-*/
+        Route::get('/', 'DocumentosController@index', ['acl:documentos.ver']);
 
-# LISTAR DOCUMENTOS
-Route::get('/documentos', 'DocumentosController@index', [
-    'auth', '2fa', 'acl:documentos.ver'
-]);
+        Route::get('/criar', 'DocumentosController@criar', ['acl:documentos.criar']);
+        Route::post('/store', 'DocumentosController@store', ['acl:documentos.criar', 'csrf']);
 
-# FORMULÁRIO DE CRIAÇÃO
-Route::get('/documentos/criar', 'DocumentosController@criar', [
-    'auth', '2fa', 'acl:documentos.criar'
-]);
+        Route::get('/editar/{id}', 'DocumentosController@editar', ['acl:documentos.editar']);
+        Route::post('/update/{id}', 'DocumentosController@update', ['acl:documentos.editar', 'csrf']);
 
-# GUARDAR NOVO DOCUMENTO
-Route::post('/documentos/store', 'DocumentosController@store', [
-    'auth', '2fa', 'acl:documentos.criar', 'csrf'
-]);
+        Route::get('/eliminar/{id}', 'DocumentosController@delete', ['acl:documentos.eliminar']);
 
-# EDITAR DOCUMENTO
-Route::get('/documentos/editar/{id}', 'DocumentosController@editar', [
-    'auth', '2fa', 'acl:documentos.editar'
-]);
+        Route::get('/download/{id}', 'DocumentosController@download', ['acl:documentos.ver']);
+        Route::get('/preview/{id}', 'DocumentosController@preview', ['acl:documentos.ver']);
 
-Route::post('/documentos/update/{id}', 'DocumentosController@update', [
-    'auth', '2fa', 'acl:documentos.editar', 'csrf'
-]);
+        Route::get('/{id}', 'DocumentosController@show', ['acl:documentos.ver']);
+    });
 
-# ELIMINAR DOCUMENTO
-Route::get('/documentos/eliminar/{id}', 'DocumentosController@delete', [
-    'auth', '2fa', 'acl:documentos.eliminar'
-]);
+    /*
+      |--------------------------------------------------------------------------
+      | Utilizadores
+      |--------------------------------------------------------------------------
+     */
+    Route::group(['prefix' => '/utilizadores'], function () {
 
-# DOWNLOAD
-Route::get('/documentos/download/{id}', 'DocumentosController@download', [
-    'auth', '2fa', 'acl:documentos.ver'
-]);
+        Route::get('/', 'UtilizadoresController@index', ['acl:utilizadores.ver']);
 
-# PREVIEW (imagem/pdf)
-Route::get('/documentos/preview/{id}', 'DocumentosController@preview', [
-    'auth', '2fa', 'acl:documentos.ver'
-]);
+        Route::get('/criar', 'UtilizadoresController@criar', ['acl:utilizadores.criar']);
+        Route::post('/criar', 'UtilizadoresController@store', ['acl:utilizadores.criar', 'csrf']);
 
-# DETALHES DO DOCUMENTO
-Route::get('/documentos/{id}', 'DocumentosController@show', [
-    'auth', '2fa', 'acl:documentos.ver'
-]);
+        Route::get('/editar/{id}', 'UtilizadoresController@editar', ['acl:utilizadores.editar']);
+        Route::post('/editar/{id}', 'UtilizadoresController@update', ['acl:utilizadores.editar', 'csrf']);
 
-/*
-|--------------------------------------------------------------------------
-| Utilizadores
-|--------------------------------------------------------------------------
-*/
-Route::get('/utilizadores', 'UtilizadoresController@index', ['auth', '2fa', 'perm:utilizadores.ver']);
-Route::get('/utilizadores/criar', 'UtilizadoresController@criar', ['auth', '2fa', 'perm:utilizadores.criar']);
-Route::post('/utilizadores/criar', 'UtilizadoresController@store', ['auth', '2fa', 'perm:utilizadores.criar', 'csrf']);
+        Route::get('/eliminar/{id}', 'UtilizadoresController@delete', ['acl:utilizadores.eliminar']);
 
-Route::get('/utilizadores/editar/{id}', 'UtilizadoresController@editar', ['auth', '2fa', 'perm:utilizadores.editar']);
-Route::post('/utilizadores/editar/{id}', 'UtilizadoresController@update', ['auth', '2fa', 'perm:utilizadores.editar', 'csrf']);
+        Route::get('/{id}', 'UtilizadoresController@show', ['acl:utilizadores.ver']);
+    });
 
-Route::get('/utilizadores/eliminar/{id}', 'UtilizadoresController@delete', ['auth', '2fa', 'perm:utilizadores.eliminar']);
-Route::get('/utilizadores/{id}', 'UtilizadoresController@show', ['auth', '2fa', 'perm:utilizadores.ver']);
+    // 2FA
+    Route::get('/2fa/setup', 'TwoFactorSetupController@setupForm');
+    Route::post('/2fa/ativar', 'TwoFactorSetupController@ativar');
+    Route::post('/2fa/desativar', 'TwoFactorSetupController@desativar');
 
+// Recuperação de conta
+    Route::get('/recuperar', 'RecuperacaoController@form');
+    Route::post('/recuperar', 'RecuperacaoController@enviar');
+    Route::get('/reset/{token}', 'RecuperacaoController@resetForm');
+    Route::post('/reset/{token}', 'RecuperacaoController@reset');
 
-/*
-|--------------------------------------------------------------------------
-| Perfis
-|--------------------------------------------------------------------------
-*/
-Route::get('/perfis', 'PerfisController@index', ['auth', '2fa', 'perm:perfis.ver']);
-Route::get('/perfis/criar', 'PerfisController@criar', ['auth', '2fa', 'perm:perfis.criar']);
-Route::post('/perfis/store', 'PerfisController@store', ['auth', '2fa', 'perm:perfis.criar', 'csrf']);
+    /*
+      |--------------------------------------------------------------------------
+      | Perfis e Permissões
+      |--------------------------------------------------------------------------
+     */
+    Route::group(['prefix' => '/perfis'], function () {
 
-Route::get('/perfis/editar/{id}', 'PerfisController@editar', ['auth', '2fa', 'perm:perfis.editar']);
-Route::post('/perfis/update/{id}', 'PerfisController@update', ['auth', '2fa', 'perm:perfis.editar', 'csrf']);
+        Route::get('/', 'PerfisController@index', ['acl:perfis.ver']);
 
-Route::get('/perfis/eliminar/{id}', 'PerfisController@delete', ['auth', '2fa', 'perm:perfis.eliminar']);
+        Route::get('/criar', 'PerfisController@criar', ['acl:perfis.criar']);
+        Route::post('/store', 'PerfisController@store', ['acl:perfis.criar', 'csrf']);
 
-Route::get('/permissoes', 'PermissoesController@index', ['auth', '2fa', 'perm:permissoes.ver']);
-Route::post('/permissoes', 'PermissoesController@update', ['auth', '2fa', 'perm:permissoes.editar', 'csrf']);
+        Route::get('/editar/{id}', 'PerfisController@editar', ['acl:perfis.editar']);
+        Route::post('/update/{id}', 'PerfisController@update', ['acl:perfis.editar', 'csrf']);
 
-Route::get('/admin/perfis', 'PerfisAdminController@index', ['auth', '2fa', 'perm:perfis.ver']);
-Route::get('/admin/perfis/criar', 'PerfisAdminController@create', ['auth', '2fa', 'perm:perfis.criar']);
-Route::post('/admin/perfis/criar', 'PerfisAdminController@store', ['auth', '2fa', 'perm:perfis.criar', 'csrf']);
-Route::get('/admin/perfis/editar/{id}', 'PerfisAdminController@edit', ['auth', '2fa', 'perm:perfis.editar']);
-Route::post('/admin/perfis/editar/{id}', 'PerfisAdminController@update', ['auth', '2fa', 'perm:perfis.editar', 'csrf']);
-Route::get('/admin/perfis/eliminar/{id}', 'PerfisAdminController@delete', ['auth', '2fa', 'perm:perfis.eliminar']);
+        Route::get('/eliminar/{id}', 'PerfisController@delete', ['acl:perfis.eliminar']);
+    });
 
-Route::get('/admin/utilizadores', 'UtilizadoresAdminController@index', ['auth', '2fa', 'perm:utilizadores.ver']);
-Route::get('/admin/utilizadores/criar', 'UtilizadoresAdminController@create', ['auth', '2fa', 'perm:utilizadores.criar']);
-Route::post('/admin/utilizadores/criar', 'UtilizadoresAdminController@store', ['auth', '2fa', 'perm:utilizadores.criar', 'csrf']);
-Route::get('/admin/utilizadores/editar/{id}', 'UtilizadoresAdminController@edit', ['auth', '2fa', 'perm:utilizadores.editar']);
-Route::post('/admin/utilizadores/editar/{id}', 'UtilizadoresAdminController@update', ['auth', '2fa', 'perm:utilizadores.editar', 'csrf']);
-Route::get('/admin/utilizadores/eliminar/{id}', 'UtilizadoresAdminController@delete', ['auth', '2fa', 'perm:utilizadores.eliminar']);
+    Route::group(['prefix' => '/permissoes'], function () {
+        Route::get('/', 'PermissoesController@index', ['acl:permissoes.ver']);
+        Route::post('/', 'PermissoesController@update', ['acl:permissoes.editar', 'csrf']);
+    });
 
+    // Perfil
+    Route::get('/perfil', 'PerfilController@index', ['middleware' => ['auth', 'twofactor']]);
+
+// Recuperação
+    Route::get('/recuperar', 'RecuperacaoController@form');
+    Route::post('/recuperar', 'RecuperacaoController@enviar');
+    Route::get('/reset/{token}', 'RecuperacaoController@resetForm');
+    Route::post('/reset/{token}', 'RecuperacaoController@reset');
+
+// 2FA
+    Route::get('/2fa/setup', 'TwoFactorSetupController@setupForm', ['middleware' => ['auth']]);
+    Route::post('/2fa/ativar', 'TwoFactorSetupController@ativar', ['middleware' => ['auth']]);
+    Route::post('/2fa/desativar', 'TwoFactorSetupController@desativar', ['middleware' => ['auth']]);
+
+    /*
+      |--------------------------------------------------------------------------
+      | Admin (prefixo /admin)
+      |--------------------------------------------------------------------------
+     */
+    Route::group(['prefix' => '/admin'], function () {
+
+        Route::group(['prefix' => '/perfis'], function () {
+            Route::get('/', 'PerfisAdminController@index', ['acl:perfis.ver']);
+            Route::get('/criar', 'PerfisAdminController@create', ['acl:perfis.criar']);
+            Route::post('/criar', 'PerfisAdminController@store', ['acl:perfis.criar', 'csrf']);
+            Route::get('/editar/{id}', 'PerfisAdminController@edit', ['acl:perfis.editar']);
+            Route::post('/editar/{id}', 'PerfisAdminController@update', ['acl:perfis.editar', 'csrf']);
+            Route::get('/eliminar/{id}', 'PerfisAdminController@delete', ['acl:perfis.eliminar']);
+        });
+
+        Route::group(['prefix' => '/utilizadores'], function () {
+            Route::get('/', 'UtilizadoresAdminController@index', ['acl:utilizadores.ver']);
+            Route::get('/criar', 'UtilizadoresAdminController@create', ['acl:utilizadores.criar']);
+            Route::post('/criar', 'UtilizadoresAdminController@store', ['acl:utilizadores.criar', 'csrf']);
+            Route::get('/editar/{id}', 'UtilizadoresAdminController@edit', ['acl:utilizadores.editar']);
+            Route::post('/editar/{id}', 'UtilizadoresAdminController@update', ['acl:utilizadores.editar', 'csrf']);
+            Route::get('/eliminar/{id}', 'UtilizadoresAdminController@delete', ['acl:utilizadores.eliminar']);
+        });
+    });
+});

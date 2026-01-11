@@ -1,0 +1,26 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Configurar Autenticação 2FA{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Configurar Autenticação 2FA</h2>
+
+    <p>Digitalize este QR Code na sua aplicação Google Authenticator.</p>
+
+    <img src="data:image/png;base64,{{ qr }}" alt="QR Code 2FA">
+
+    <p><strong>Secret:</strong> {{ secret }}</p>
+
+    <form method="post" action="/2fa/ativar">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+        <div class="form-group">
+            <label for="codigo">Código 2FA</label>
+            <input type="text" name="codigo" id="codigo" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">Ativar 2FA</button>
+    </form>
+</div>
+{% endblock %}

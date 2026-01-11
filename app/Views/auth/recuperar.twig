@@ -1,0 +1,24 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Recuperar Conta{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Recuperar Conta</h2>
+
+    {% for msg in flash %}
+        <div class="alert alert-{{ msg.tipo }}">{{ msg.mensagem }}</div>
+    {% endfor %}
+
+    <form method="post" action="/recuperar">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+        <div class="form-group">
+            <label for="email">Email da conta</label>
+            <input type="email" name="email" id="email" class="form-control" required autofocus>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Enviar link de recuperação</button>
+    </form>
+</div>
+{% endblock %}

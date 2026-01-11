@@ -26,6 +26,8 @@ class DocumentosController extends BaseController
      */
     public function index()
     {
+        error_log("DASHBOARD SESSION ID: " . session_id());
+error_log("DASHBOARD COOKIE: " . ($_COOKIE['PHPSESSID'] ?? 'SEM COOKIE'));
         $docs = $this->docModel->all();
 
         return $this->view('documentos/index.twig', [

@@ -1,0 +1,28 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Validar Autenticação 2FA{% endblock %}
+
+{% block content %}
+
+<form method="post" action="{{ url('/2fa/validar') }}" class="auth-form">
+
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+
+    <div class="form-group">
+        <label for="codigo" class="auth-label">Código 2FA</label>
+        <input type="text"
+               name="codigo"
+               id="codigo"
+               class="auth-input"
+               placeholder="123 456"
+               autofocus
+               required>
+    </div>
+
+    <button type="submit" class="auth-button">
+        Validar Código
+    </button>
+
+</form>
+
+{% endblock %}

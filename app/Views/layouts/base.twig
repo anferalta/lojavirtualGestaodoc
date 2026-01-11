@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Autenticação 2FA{% endblock %}</title>
+
+        <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/assets/css/login.css">
+        <link rel="stylesheet" href="/assets/css/auth.css">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+
+    <body class="auth-layout">
+
+        <main class="auth-container">
+
+            <div class="auth-card">
+
+                <h1 class="auth-title">🔐 Validação 2FA</h1>
+                <p class="auth-subtitle">
+                    Introduz o código gerado pela tua aplicação de autenticação.
+                </p>
+
+                {% include 'partials/flash.twig' %}
+
+                {% block content %}{% endblock %}
+
+                <div class="auth-footer">
+                    <a href="{{ url('/logout') }}" class="auth-link">Voltar ao login</a>
+                </div>
+
+            </div>
+
+        </main>
+
+    </body>
+</html>

@@ -2,60 +2,65 @@
 
 namespace App\Controllers;
 
-use App\Core\BaseController;
 use App\Core\Auth;
+use App\Core\BaseController;
+use App\Core\Helpers;
 use App\Core\Sessao;
-use App\Core\Acl;
 
 class AuthController extends BaseController {
 
+    public function showLogin(): void {
+        $data = [
+            'csrf' => Sessao::csrf(),
+        ];
+
+        $this->view('auth/login', $data);
+    }
+
     public function loginForm(): void {
-        if (Auth::check()) {
-            $this->redirect('/dashboard');
+        // Se já estiver autenticado, redireciona para o dashboard
+        if (\App\Core\Auth::check()) {
+            \App\Core\Helpers::redirect('/dashboard');
         }
 
-        $this->view('auth/login');
+        $data = [
+            'csrf' => \App\Core\Sessao::csrf(),
+        ];
+
+        $this->view('auth/login', $data);
     }
 
     public function login(): void {
-        error_log("SESSION LOGIN: " . session_id());
-        // Validar CSRF
+        Sessao::start();
+
         $token = $_POST['_csrf'] ?? '';
         if (!Sessao::validarCsrf($token)) {
-            Sessao::flash('Sessão expirada. Por favor tente novamente.', 'error');
-            $this->redirect('/login');
+            Sessao::flash('error', 'Token CSRF inválido');
+            Helpers::redirect('/login');
         }
 
-        // Normalizar inputs
-        $email = strtolower(trim($_POST['email'] ?? ''));
-        $senha = trim($_POST['senha'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = (string) ($_POST['password'] ?? '');
 
-        if ($email === '' || $senha === '') {
-            Sessao::flash('Preencha todos os campos.', 'warning');
-            $this->redirect('/login');
+        if ($email === '' || $password === '') {
+            Sessao::flash('error', 'Preencha todos os campos');
+            Helpers::redirect('/login');
         }
 
-        // Autenticação
-        if (!Auth::attempt($email, $senha)) {
-            Sessao::flash('Credenciais inválidas.', 'error');
-            $this->redirect('/login');
+        if (!Auth::attempt($email, $password)) {
+            Sessao::flash('error', 'Credenciais inválidas');
+            Helpers::redirect('/login');
         }
 
-        // Limpar cache ACL
-        Acl::flush();
+        Sessao::flash('success', 'Login efetuado com sucesso');
+        Sessao::regenerateCsrf();
 
-        // Garantir que a sessão é gravada
-        session_write_close();
-
-        // Redirecionar
-        Sessao::flash('Bem-vindo de volta!', 'success');
-        $this->redirect('/dashboard');
+        Helpers::redirect('/dashboard');
     }
 
-    public function logout() {
-        Acl::flush();      // ← limpa o cache do ACL
-        session_destroy(); // ← limpa a sessão
-        header("Location: /login");
-        exit;
+    public function logout(): void {
+        Auth::logout();
+        Sessao::flash('info', 'Sessão terminada');
+        Helpers::redirect('/login');
     }
 }

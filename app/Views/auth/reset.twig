@@ -1,0 +1,24 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Redefinir Password{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Redefinir Password</h2>
+
+    {% for msg in flash %}
+        <div class="alert alert-{{ msg.tipo }}">{{ msg.mensagem }}</div>
+    {% endfor %}
+
+    <form method="post" action="">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+        <div class="form-group">
+            <label for="password">Nova Password</label>
+            <input type="password" name="password" id="password" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">Redefinir</button>
+    </form>
+</div>
+{% endblock %}

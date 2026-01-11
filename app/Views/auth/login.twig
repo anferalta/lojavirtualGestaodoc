@@ -1,25 +1,47 @@
-{% extends "layouts/auth.twig" %}
+{% extends "layouts/base.twig" %}
 
 {% block title %}Login{% endblock %}
 
 {% block content %}
+<div class="auth-container">
+    <h2>Login</h2>
 
-<form method="post" action="{{ url('/login') }}">
+    {% for msg in flash %}
+        <div class="alert alert-{{ msg.tipo }}">{{ msg.mensagem }}</div>
+    {% endfor %}
 
-    <input type="hidden" name="_csrf" value="{{ csrf }}">
+    <form method="post" action="/login">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
 
-    <div class="form-group">
-        <label>Email</label>
-        <input type="email" name="email" class="form-input" placeholder="O seu email" required>
-    </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input
+                type="email"
+                name="email"
+                id="email"
+                class="form-control"
+                required
+                autofocus
+                value="{{ old.email ?? '' }}"
+            >
+        </div>
 
-    <div class="form-group">
-        <label>Palavra-passe</label>
-        <input type="password" name="password" class="form-input" placeholder="A sua palavra-passe" required>
-    </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input
+                type="password"
+                name="password"
+                id="password"
+                class="form-control"
+                required
+            >
+        </div>
 
-    <button class="btn-primary">Entrar</button>
+        <button type="submit" class="btn btn-primary">Entrar</button>
 
-</form>
-
+        <div class="auth-links">
+            <a href="/recuperar">Esqueci-me da password</a>
+        </div>
+    </form>
+</div>
 {% endblock %}

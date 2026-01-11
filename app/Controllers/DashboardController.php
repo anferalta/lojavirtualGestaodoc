@@ -13,8 +13,13 @@ class DashboardController extends BaseController
 {
     public function index()
     {
-        error_log("SESSION DASHBOARD: " . session_id());
+        // Obter utilizador autenticado
         $user = Auth::user();
+
+        // Segurança: se não existir utilizador, redirecionar para login
+        if (!$user) {
+            return redirecionar('/login');
+        }
 
         // Estatísticas
         $totalUtilizadores = Utilizador::count();

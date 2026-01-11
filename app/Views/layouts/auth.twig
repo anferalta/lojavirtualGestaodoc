@@ -2,30 +2,23 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Autenticação{% endblock %}</title>
+    <title>{% block title %}Login{% endblock %}</title>
 
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 </head>
 
-<body class="auth-body">
+<body class="login-body">
 
-    <div class="auth-wrapper">
+<div class="login-wrapper">
+    <div class="login-card">
 
-        <div class="auth-card">
+        {% include 'partials/flash.twig' %}
 
-            <div class="auth-header">
-                <h1 class="auth-title">📁 Gestão Documental</h1>
-                <p class="auth-subtitle">Aceda ao seu painel</p>
-            </div>
-
-            {% include 'partials/flash.twig' %}
-
-            {% block content %}{% endblock %}
-
-        </div>
-
+        {% block content %}{% endblock %}
     </div>
+</div>
 
+<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>

@@ -4,10 +4,12 @@ namespace App\Core;
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Twig\TwigFunction;
 
-class TwigBootstrap {
-
-    public static function init(): Environment {
+class TwigBootstrap
+{
+    public static function init(): Environment
+    {
         $viewsPath = BASE_PATH . '/app/Views';
 
         $loader = new FilesystemLoader($viewsPath);
@@ -19,14 +21,14 @@ class TwigBootstrap {
         ]);
 
         // Função asset()
-        $twig->addFunction(new \Twig\TwigFunction('asset', function ($path) {
-                            return Helpers::url('/assets/' . ltrim($path, '/'));
-                        }));
+        $twig->addFunction(new TwigFunction('asset', function (string $path): string {
+            return Helpers::url('/assets/' . ltrim($path, '/'));
+        }));
 
         // Função url()
-        $twig->addFunction(new \Twig\TwigFunction('url', function ($path = '') {
-                            return Helpers::url($path);
-                        }));
+        $twig->addFunction(new TwigFunction('url', function (string $path = ''): string {
+            return Helpers::url($path);
+        }));
 
         return $twig;
     }

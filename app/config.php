@@ -1,3 +1,3 @@
 <?php
 
-define('BASE_URL', 'http://localhost/lojavirtual');
+define('BASE_URL', 'http://lojavirtual.local');

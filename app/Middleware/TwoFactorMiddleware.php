@@ -2,31 +2,38 @@
 
 namespace App\Middleware;
 
-use App\Core\Auth;
+use App\Core\Sessao;
+use App\Models\Usuario;
+use App\Core\Route;
 
 class TwoFactorMiddleware
 {
-    public function handle()
+    public static function handle()
     {
-        // Se não estiver autenticado, não faz nada
-        if (!Auth::check()) {
+        // 1. Se não está autenticado, não faz nada
+        if (!Sessao::tem('usuario_id')) {
             return;
         }
 
-        $user = Auth::user();
+        // 2. Carregar utilizador
+        $usuario = Usuario::find(Sessao::get('usuario_id'));
 
-        // Se o utilizador não tem 2FA ativo, segue
-        if (!$user->two_factor_ativo) {
+        // 3. Se o 2FA não está ativo, não faz nada
+        if (!$usuario->two_factor_ativo) {
             return;
         }
 
-        // Se já validou 2FA nesta sessão, segue
-        if (!empty($_SESSION['2fa_validado'])) {
+        // 4. Se já validou o 2FA nesta sessão, não faz nada
+        if (Sessao::tem('2fa_validado')) {
             return;
         }
 
-        // Redireciona para validação
-        header('Location: /2fa/validar');
-        exit;
+        // 5. Se está na página de validação, deixa passar
+        if (Route::current() === '/2fa/validar') {
+            return;
+        }
+
+        // 6. Caso contrário, redireciona para validar
+        redirecionar('/2fa/validar');
     }
 }

@@ -1,42 +1,31 @@
-{% extends "layouts/painel.twig" %}
+{% extends "layouts/base.twig" %}
 
-{% block title %}Perfis{% endblock %}
+{% block title %}O Meu Perfil{% endblock %}
 
 {% block content %}
+<div class="profile-container">
+    <h2>O Meu Perfil</h2>
 
-<h1 class="page-title">Perfis</h1>
-
-<div class="actions-bar">
-    <a href="{{ url('/admin/perfis/criar') }}" class="btn btn-primary">Novo Perfil</a>
-</div>
-
-<table class="table">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Nome</th>
-        <th>Ações</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for perfil in perfis %}
-        <tr>
-            <td>{{ perfil.id }}</td>
-            <td>{{ perfil.nome }}</td>
-            <td>
-                <a href="{{ url('/admin/perfis/editar/' ~ perfil.id) }}" class="btn btn-sm btn-secondary">Editar</a>
-                <a href="{{ url('/admin/perfis/eliminar/' ~ perfil.id) }}" class="btn btn-sm btn-danger"
-                   onclick="return confirm('Tem a certeza que quer eliminar este perfil?');">
-                    Eliminar
-                </a>
-            </td>
-        </tr>
-    {% else %}
-        <tr>
-            <td colspan="3">Nenhum perfil encontrado.</td>
-        </tr>
+    {% for msg in flash %}
+        <div class="alert alert-{{ msg.tipo }}">{{ msg.mensagem }}</div>
     {% endfor %}
-    </tbody>
-</table>
 
+    <p><strong>Nome:</strong> {{ user.nome }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+
+    <hr>
+
+    <h3>Autenticação 2FA</h3>
+
+    {% if user.two_factor_ativo %}
+        <p>2FA está <strong>ativado</strong>.</p>
+        <form method="post" action="/2fa/desativar">
+            <input type="hidden" name="_csrf" value="{{ csrf }}">
+            <button class="btn btn-danger">Desativar 2FA</button>
+        </form>
+    {% else %}
+        <p>2FA está <strong>desativado</strong>.</p>
+        <a href="/2fa/setup" class="btn btn-primary">Ativar 2FA</a>
+    {% endif %}
+</div>
 {% endblock %}

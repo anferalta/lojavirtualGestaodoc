@@ -1,9 +1,7 @@
-{% if flash %}
-    {% if flash.error %}
-        <div class="alert alert-danger">{{ flash.error }}</div>
-    {% endif %}
-
-    {% if flash.success %}
-        <div class="alert alert-success">{{ flash.success }}</div>
-    {% endif %}
+{% if flash is not empty %}
+    {% for f in flash %}
+        <div class="alert alert-{{ f.tipo }}">
+            {{ f.mensagem }}
+        </div>
+    {% endfor %}
 {% endif %}
