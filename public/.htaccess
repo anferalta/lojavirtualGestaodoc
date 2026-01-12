@@ -11,7 +11,9 @@ RewriteEngine On
 # 2. Permitir assets estáticos
 # ============================
 RewriteCond %{REQUEST_URI} ^/assets/ [OR]
-RewriteCond %{REQUEST_URI} ^/uploads_publicos/
+RewriteCond %{REQUEST_URI} ^assets/ [OR]
+RewriteCond %{REQUEST_URI} ^/uploads_publicos/ [OR]
+RewriteCond %{REQUEST_URI} ^uploads_publicos/
 RewriteRule .* - [L]
 
 # ============================

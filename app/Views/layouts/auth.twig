@@ -2,23 +2,33 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Login{% endblock %}</title>
+    <title>{% block title %}Autenticação{% endblock %}</title>
 
-    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url('assets/css/login.css') }}">
+    <link rel="stylesheet" href="{{ url('assets/css/auth.css') }}">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
-<body class="login-body">
+<body class="auth-layout">
 
-<div class="login-wrapper">
-    <div class="login-card">
+    <main class="auth-container">
 
-        {% include 'partials/flash.twig' %}
+        <div class="auth-card">
 
-        {% block content %}{% endblock %}
-    </div>
-</div>
+            {% include 'partials/flash.twig' %}
 
-<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+            {% block content %}{% endblock %}
+
+            <div class="auth-footer">
+                <a href="{{ url('/logout') }}" class="auth-link">Voltar ao login</a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="{{ url('assets/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>

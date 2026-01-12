@@ -4,30 +4,45 @@
 
 {% block content %}
 
-<div class="page-header">
-    <h1 class="page-title">Dashboard</h1>
-</div>
+    <!-- HEADER DO DASHBOARD -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Bem-vindo, {{ usuario_nome }}!</h1>
+        <p class="dashboard-subtitle">Aqui está o resumo da sua atividade</p>
+    </div>
 
-<div class="cards-grid">
+    <!-- CARDS -->
+    <div class="cards-grid">
 
-    {% include 'components/card.twig' with {
-        title: 'Utilizadores',
-        value: stats.utilizadores,
-        icon: '👤'
-    } %}
+        {% include 'components/card.twig' with {
+            title: 'Utilizadores',
+            value: stats.utilizadores,
+            icon: '👤'
+        } %}
 
-    {% include 'components/card.twig' with {
-        title: 'Documentos',
-        value: stats.documentos,
-        icon: '📁'
-    } %}
+        {% include 'components/card.twig' with {
+            title: 'Documentos',
+            value: stats.documentos,
+            icon: '📁'
+        } %}
 
-    {% include 'components/card.twig' with {
-        title: 'Perfis',
-        value: stats.perfis,
-        icon: '🔐'
-    } %}
+        {% include 'components/card.twig' with {
+            title: 'Perfis',
+            value: stats.perfis,
+            icon: '🛡️'
+        } %}
 
-</div>
+        {% include 'components/card.twig' with {
+            title: 'Documentos hoje',
+            value: stats.hoje,
+            icon: '📅'
+        } %}
+
+        {% include 'components/card.twig' with {
+            title: 'Documentos este mês',
+            value: stats.mes,
+            icon: '📊'
+        } %}
+
+    </div>
 
 {% endblock %}

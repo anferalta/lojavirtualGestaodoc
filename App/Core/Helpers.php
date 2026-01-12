@@ -2,10 +2,9 @@
 
 namespace App\Core;
 
-class Helpers
-{
-    public static function url(string $path = ''): string
-    {
+class Helpers {
+
+    public static function url(string $path = ''): string {
         $base = rtrim($_ENV['APP_URL'] ?? '', '/');
 
         if ($path === '' || $path === '/') {
@@ -15,8 +14,12 @@ class Helpers
         return $base . '/' . ltrim($path, '/');
     }
 
-    public static function redirect(string $path): void
-    {
+    public static function asset(string $path): string {
+        $base = rtrim($_ENV['APP_URL'] ?? '', '/');
+        return $base . '/assets/' . ltrim($path, '/');
+    }
+
+    public static function redirect(string $path): void {
         $url = self::url($path);
         header('Location: ' . $url, true, 302);
         exit;

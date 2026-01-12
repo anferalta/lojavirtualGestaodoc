@@ -34,12 +34,18 @@ class Auth {
         return $_SESSION['user_id'] ?? null;
     }
 
-    public static function user(): ?Usuario {
+    public static function user(): ?\App\Models\Usuario {
         $id = self::userId();
         if (!$id) {
             return null;
         }
-        return Usuario::find($id);
+
+        $sql = "SELECT * FROM utilizadores WHERE id = :id LIMIT 1";
+        $stmt = self::db()->prepare($sql);
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetchObject(\App\Models\Usuario::class) ?: null;
     }
 
     /* -----------------------------
@@ -52,7 +58,7 @@ class Auth {
         $stmt->bindValue(':email', $email);
         $stmt->execute();
 
-        $user = $stmt->fetchObject(Usuario::class);
+        $user = $stmt->fetchObject(\App\Models\Usuario::class);
 
         if (!$user) {
             return false;
