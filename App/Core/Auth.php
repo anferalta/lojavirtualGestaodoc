@@ -3,7 +3,7 @@
 namespace App\Core;
 
 use PDO;
-use App\Models\Usuario;
+use App\Models\Utilizador;
 
 class Auth {
 
@@ -15,7 +15,7 @@ class Auth {
      * LOGIN / LOGOUT
      * ----------------------------- */
 
-    public static function login(Usuario $user): void {
+    public static function login(Utilizador $user): void {
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user->id;
     }
@@ -34,7 +34,7 @@ class Auth {
         return $_SESSION['user_id'] ?? null;
     }
 
-    public static function user(): ?\App\Models\Usuario {
+    public static function user(): ?\App\Models\Utilizador {
         $id = self::userId();
         if (!$id) {
             return null;
@@ -45,7 +45,7 @@ class Auth {
         $stmt->bindValue(':id', $id);
         $stmt->execute();
 
-        return $stmt->fetchObject(\App\Models\Usuario::class) ?: null;
+        return $stmt->fetchObject(\App\Models\Utilizador::class) ?: null;
     }
 
     /* -----------------------------
@@ -58,7 +58,7 @@ class Auth {
         $stmt->bindValue(':email', $email);
         $stmt->execute();
 
-        $user = $stmt->fetchObject(\App\Models\Usuario::class);
+        $user = $stmt->fetchObject(\App\Models\Utilizador::class);
 
         if (!$user) {
             return false;

@@ -3,49 +3,39 @@
 namespace App\Controllers;
 
 use App\Core\BaseController;
-use App\Core\Auth;
-use App\Core\ACL;
-use App\Models\Utilizador;
 use App\Models\Documento;
 use App\Models\Perfil;
+use App\Models\Utilizador;
 
 class DashboardController extends BaseController
 {
     public function index()
     {
-        // Obter utilizador autenticado
-        $user = Auth::user();
+        // Obter ID do utilizador autenticado
+        $id = $_SESSION['user_id'] ?? null;
 
-        // Segurança: se não existir utilizador, redirecionar para login
-        if (!$user) {
-            return redirecionar('/login');
-        }
+        // Buscar utilizador
+        $usuario = $id ? (new Utilizador())->find($id) : null;
 
-        // Estatísticas
-        $totalUtilizadores = Utilizador::count();
-        $totalDocumentos   = Documento::count();
-        $totalPerfis       = Perfil::count();
+        // Nome do utilizador
+        $usuario_nome = $usuario->nome ?? 'Utilizador';
 
-        // Documentos criados hoje
-        $documentosHoje = Documento::countWhere("DATE(criado_em) = CURDATE()");
+        // Estatísticas principais
+        $total_utilizadores = Utilizador::count();
+        $total_documentos   = Documento::count();
+        $total_perfis       = Perfil::count();
 
-        // Documentos do mês atual
-        $documentosMes = Documento::countWhere("
-            MONTH(criado_em) = MONTH(NOW()) 
-            AND YEAR(criado_em) = YEAR(NOW())
-        ");
+        // Estatísticas avançadas
+        $documentos_hoje = Documento::countHoje();
+        $documentos_mes  = Documento::countMes();
 
-        $this->view('painel/index', [
-            'usuario_nome'       => $user->nome,
-            'user'               => $user,
-            'acl'                => new ACL($user->perfil_id),
-
-            // Estatísticas
-            'total_utilizadores' => $totalUtilizadores,
-            'total_documentos'   => $totalDocumentos,
-            'total_perfis'       => $totalPerfis,
-            'documentos_hoje'    => $documentosHoje,
-            'documentos_mes'     => $documentosMes
+        return $this->view('painel/dashboard', [
+            'usuario_nome'       => $usuario_nome,
+            'total_utilizadores' => $total_utilizadores,
+            'total_documentos'   => $total_documentos,
+            'total_perfis'       => $total_perfis,
+            'documentos_hoje'    => $documentos_hoje,
+            'documentos_mes'     => $documentos_mes
         ]);
     }
 }

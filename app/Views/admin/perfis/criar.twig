@@ -1,0 +1,37 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}Criar Perfil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Criar Perfil</h1>
+
+    <form method="post" action="{{ url('admin/perfis/criar') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+        <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input type="text" name="nome" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Slug</label>
+            <input type="text" name="slug" class="form-control" required>
+            <div class="form-text">Ex: admin, gestor, operador</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descrição</label>
+            <textarea name="descricao" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Permissões</label>
+            {% include 'admin/perfis/_permissoes_table.twig' with { permissoes: permissoes } %}
+        </div>
+
+        <button class="btn btn-primary">Criar</button>
+        <a href="{{ url('admin/perfis') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

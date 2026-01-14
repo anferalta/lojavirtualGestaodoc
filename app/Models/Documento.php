@@ -4,10 +4,9 @@ namespace App\Models;
 
 use App\Core\Model;
 
-class Documento extends Model
-{
-    protected static string $tabela = 'documentos';
+class Documento extends Model {
 
+    protected static string $tabela = 'documentos';
     protected array $permitidos = [
         'nome',
         'ficheiro',
@@ -18,17 +17,27 @@ class Documento extends Model
         'updated_at'
     ];
 
-    public function map(array $data): array
-    {
+    public function map(array $data): array {
         return [
-            'id'            => $data['id'] ?? null,
-            'nome'          => $data['nome'] ?? null,
-            'ficheiro'      => $data['ficheiro'] ?? null,
-            'tipo'          => $data['tipo'] ?? null,
-            'tamanho'       => $data['tamanho'] ?? null,
+            'id' => $data['id'] ?? null,
+            'nome' => $data['nome'] ?? null,
+            'ficheiro' => $data['ficheiro'] ?? null,
+            'tipo' => $data['tipo'] ?? null,
+            'tamanho' => $data['tamanho'] ?? null,
             'utilizador_id' => $data['utilizador_id'] ?? null,
-            'created_at'    => $data['created_at'] ?? null,
-            'updated_at'    => $data['updated_at'] ?? null,
+            'created_at' => $data['created_at'] ?? null,
+            'updated_at' => $data['updated_at'] ?? null,
         ];
+    }
+
+    public static function countHoje() {
+        return static::countWhere("DATE(criado_em) = CURDATE()");
+    }
+
+    public static function countMes() {
+        return static::countWhere("
+        MONTH(criado_em) = MONTH(CURDATE())
+        AND YEAR(criado_em) = YEAR(CURDATE())
+    ");
     }
 }

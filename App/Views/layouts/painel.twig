@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Painel{% endblock %}</title>
+
     <link rel="stylesheet" href="{{ url('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url('assets/css/painel.css') }}">
-       
+    <link rel="icon" type="image/x-icon" href="{{ url('assets/img/favicon.ico') }}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
@@ -19,7 +21,6 @@
 
         <nav class="menu">
 
-            {# DASHBOARD #}
             <a href="{{ url('/painel') }}"
                class="menu-item {{ app_route starts with 'painel' ? 'active' }}">
                 <span class="icon">🏠</span> Dashboard
@@ -63,38 +64,12 @@
         </nav>
     </aside>
 
-    {# NOTIFICAÇÕES #}
-    {% set notificacoes = notificacoes_unread %}
-
-    <div class="navbar-right">
-        <div class="notifications-dropdown">
-            <button class="notifications-button">
-                🔔
-                {% if notificacoes|length > 0 %}
-                    <span class="badge badge-danger">{{ notificacoes|length }}</span>
-                {% endif %}
-            </button>
-
-            {% if notificacoes %}
-                <div class="notifications-menu">
-                    {% for n in notificacoes %}
-                        <div class="notification-item">
-                            <div class="notification-title">{{ n.titulo }}</div>
-                            <div class="notification-message">{{ n.mensagem }}</div>
-                            <div class="notification-meta">{{ n.criado_em }}</div>
-                        </div>
-                    {% endfor %}
-                    <a href="{{ url('/notificacoes') }}" class="notifications-link">Ver todas</a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-
     <!-- MAIN AREA -->
     <div class="main">
 
         <!-- TOPBAR -->
         <header class="topbar">
+
             <div class="topbar-left">
                 <button class="btn-toggle" onclick="document.body.classList.toggle('sidebar-collapsed')">
                     ☰
@@ -102,9 +77,37 @@
             </div>
 
             <div class="topbar-right">
+
+                {# NOTIFICAÇÕES #}
+                {% set notificacoes = notificacoes_unread %}
+
+                <div class="notifications-dropdown">
+                    <button class="notifications-button">
+                        🔔
+                        {% if notificacoes|length > 0 %}
+                            <span class="badge badge-danger">{{ notificacoes|length }}</span>
+                        {% endif %}
+                    </button>
+
+                    {% if notificacoes %}
+                        <div class="notifications-menu">
+                            {% for n in notificacoes %}
+                                <div class="notification-item">
+                                    <div class="notification-title">{{ n.titulo }}</div>
+                                    <div class="notification-message">{{ n.mensagem }}</div>
+                                    <div class="notification-meta">{{ n.criado_em }}</div>
+                                </div>
+                            {% endfor %}
+                            <a href="{{ url('/notificacoes') }}" class="notifications-link">Ver todas</a>
+                        </div>
+                    {% endif %}
+                </div>
+
                 <span class="user">{{ usuario_nome }}</span>
                 <a href="{{ url('/logout') }}" class="logout">Sair</a>
+
             </div>
+
         </header>
 
         <!-- CONTENT -->

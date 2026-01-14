@@ -4,7 +4,6 @@ namespace App\Middleware;
 
 use App\Core\Sessao;
 use App\Models\Usuario;
-use App\Core\Route;
 
 class TwoFactorMiddleware
 {
@@ -29,7 +28,8 @@ class TwoFactorMiddleware
         }
 
         // 5. Se está na página de validação, deixa passar
-        if (Route::current() === '/2fa/validar') {
+        $current = strtok($_SERVER['REQUEST_URI'], '?');
+        if ($current === '/2fa/validar') {
             return;
         }
 

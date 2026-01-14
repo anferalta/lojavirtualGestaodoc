@@ -55,7 +55,7 @@ class AuthController extends BaseController {
         Sessao::flash('success', 'Login efetuado com sucesso');
         Sessao::regenerateCsrf();
 
-        Helpers::redirect('/dashboard');
+        Helpers::redirect('/painel');
     }
 
     public function logout(): void {

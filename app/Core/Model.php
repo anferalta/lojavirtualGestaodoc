@@ -182,4 +182,20 @@ abstract class Model {
     public function erro(): ?string {
         return $this->erro;
     }
+
+    public function avatarUrl(): string {
+        return $this->avatar ? '/uploads/avatars/' . $this->avatar : '/assets/img/avatar-default.png';
+    }
+
+    public function estadoBadge(): string {
+        return $this->estado == 1 ? '<span class="badge bg-success">Ativo</span>' : '<span class="badge bg-secondary">Inativo</span>';
+    }
+
+    public function perfil() {
+        if (empty($this->perfil_id)) {
+            return null;
+        }
+
+        return (new \App\Models\Perfil())->find((int) $this->perfil_id);
+    }
 }

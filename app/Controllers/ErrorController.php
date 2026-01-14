@@ -2,23 +2,10 @@
 
 namespace App\Controllers;
 
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
+use App\Core\BaseController;
 
-class ErrorController
+class ErrorController extends BaseController
 {
-    private Environment $twig;
-
-    public function __construct()
-    {
-        // Twig mínimo, sem Bootstrap, sem ACL, sem Auth, sem Sessao
-        $loader = new FilesystemLoader(BASE_PATH . '/App/Views');
-        $this->twig = new Environment($loader, [
-            'cache' => false,
-            'debug' => false
-        ]);
-    }
-
     public function error404(): void
     {
         http_response_code(404);
@@ -58,5 +45,11 @@ class ErrorController
             'titulo' => "Erro {$codigo}",
             'codigo' => $codigo
         ]);
+    }
+
+    public function forbidden(): void
+    {
+        http_response_code(403);
+        echo $this->twig->render('errors/403.twig');
     }
 }

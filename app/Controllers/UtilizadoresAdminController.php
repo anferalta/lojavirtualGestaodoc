@@ -1,34 +1,69 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\Admin;
 
 use App\Core\BaseController;
+use App\Core\Sessao;
+use App\Core\Helpers;
+use App\Core\ACL;
 use App\Models\Utilizador;
 use App\Models\Perfil;
 use App\Models\UtilizadorPerfil;
 
 class UtilizadoresAdminController extends BaseController
 {
+    private ACL $acl;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->acl = new ACL();
+    }
+
+    /* ============================================================
+     * LISTAGEM
+     * ============================================================ */
     public function index(): void
     {
-        $utilizadores = (new Utilizador())->allWithPerfis();
+        // ACL opcional
+        // if (!$this->acl->can('utilizadores.ver')) {
+        //     (new \App\Controllers\ErrorController())->error403();
+        //     return;
+        // }
 
-        $this->view('utilizadores/index', [
+        $utilizadores = (new Utilizador())
+            ->orderBy('id', 'DESC')
+            ->all();
+
+        $this->view('admin/utilizadores/index', [
             'utilizadores' => $utilizadores
         ]);
     }
 
+    /* ============================================================
+     * FORMULÁRIO DE CRIAÇÃO
+     * ============================================================ */
     public function create(): void
     {
         $perfis = (new Perfil())->all();
 
-        $this->view('utilizadores/create', [
+        $this->view('admin/utilizadores/create', [
             'perfis' => $perfis
         ]);
     }
 
+    /* ============================================================
+     * GRAVAR NOVO UTILIZADOR
+     * ============================================================ */
     public function store(): void
     {
+        // CSRF
+        $token = $_POST['_csrf'] ?? '';
+        if (!Sessao::validaCsrf($token)) {
+            Helpers::flash('erro', 'Token CSRF inválido.');
+            Helpers::redirect('/admin/utilizadores');
+        }
+
         $dados = [
             'nome'  => trim($_POST['nome'] ?? ''),
             'email' => trim($_POST['email'] ?? ''),
@@ -38,8 +73,8 @@ class UtilizadoresAdminController extends BaseController
         $perfilId = $_POST['perfil_id'] ?? null;
 
         if ($dados['nome'] === '' || $dados['email'] === '') {
-            flash('error', 'Nome e email são obrigatórios.');
-            redirect('/admin/utilizadores/criar');
+            Helpers::flash('erro', 'Nome e email são obrigatórios.');
+            Helpers::redirect('/admin/utilizadores/criar');
         }
 
         $utilizadorModel = new Utilizador();
@@ -52,10 +87,13 @@ class UtilizadoresAdminController extends BaseController
             ]);
         }
 
-        flash('success', 'Utilizador criado com sucesso.');
-        redirect('/admin/utilizadores');
+        Helpers::flash('sucesso', 'Utilizador criado com sucesso.');
+        Helpers::redirect('/admin/utilizadores');
     }
 
+    /* ============================================================
+     * FORMULÁRIO DE EDIÇÃO
+     * ============================================================ */
     public function edit(int $id): void
     {
         $utilizador = (new Utilizador())->find($id);
@@ -63,18 +101,28 @@ class UtilizadoresAdminController extends BaseController
         $perfilAtual = (new UtilizadorPerfil())->getPerfilIdByUser($id);
 
         if (!$utilizador) {
-            redirect('/404');
+            Helpers::redirect('/404');
         }
 
-        $this->view('utilizadores/edit', [
+        $this->view('admin/utilizadores/edit', [
             'utilizador' => $utilizador,
             'perfis' => $perfis,
             'perfilAtual' => $perfilAtual
         ]);
     }
 
+    /* ============================================================
+     * ATUALIZAR UTILIZADOR
+     * ============================================================ */
     public function update(int $id): void
     {
+        // CSRF
+        $token = $_POST['_csrf'] ?? '';
+        if (!Sessao::validaCsrf($token)) {
+            Helpers::flash('erro', 'Token CSRF inválido.');
+            Helpers::redirect('/admin/utilizadores');
+        }
+
         $dados = [
             'nome'  => trim($_POST['nome'] ?? ''),
             'email' => trim($_POST['email'] ?? ''),
@@ -83,7 +131,7 @@ class UtilizadoresAdminController extends BaseController
 
         $perfilId = $_POST['perfil_id'] ?? null;
 
-        (new Utilizador())->update($id, $dados);
+        (new Utilizador())->updateUser($id, $dados);
 
         $upModel = new UtilizadorPerfil();
         $upModel->deleteWhere('utilizador_id', $id);
@@ -95,16 +143,19 @@ class UtilizadoresAdminController extends BaseController
             ]);
         }
 
-        flash('success', 'Utilizador atualizado com sucesso.');
-        redirect('/admin/utilizadores');
+        Helpers::flash('sucesso', 'Utilizador atualizado com sucesso.');
+        Helpers::redirect('/admin/utilizadores');
     }
 
+    /* ============================================================
+     * ELIMINAR UTILIZADOR
+     * ============================================================ */
     public function delete(int $id): void
     {
         (new UtilizadorPerfil())->deleteWhere('utilizador_id', $id);
-        (new Utilizador())->delete($id);
+        (new Utilizador())->deleteUser($id);
 
-        flash('success', 'Utilizador eliminado com sucesso.');
-        redirect('/admin/utilizadores');
+        Helpers::flash('sucesso', 'Utilizador eliminado com sucesso.');
+        Helpers::redirect('/admin/utilizadores');
     }
 }

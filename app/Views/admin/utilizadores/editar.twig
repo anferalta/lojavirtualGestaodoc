@@ -1,0 +1,31 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block title %}Editar Utilizador{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Editar Utilizador</h1>
+
+    <form method="post" action="{{ url('admin/utilizadores/editar/' ~ utilizador.id) }}">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+        <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input type="text" name="nome" class="form-control" value="{{ utilizador.nome }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" value="{{ utilizador.email }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password (deixar vazio para manter)</label>
+            <input type="password" name="password" class="form-control">
+        </div>
+
+        <button class="btn btn-primary">Guardar</button>
+        <a href="{{ url('admin/utilizadores') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
