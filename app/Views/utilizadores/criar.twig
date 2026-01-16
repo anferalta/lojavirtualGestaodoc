@@ -1,0 +1,43 @@
+{% extends "layouts/admin.twig" %}
+
+{% block title %}Criar Utilizador{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h1 class="h3 mb-4">Criar Utilizador</h1>
+
+    <form method="post" action="{{ url('admin/utilizadores/criar') }}">
+
+        <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input type="text" name="nome" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Senha</label>
+            <input type="password" name="senha" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Perfil</label>
+            <select name="perfil_id" class="form-select" required>
+                <option value="">-- Selecione um perfil --</option>
+                {% for p in perfis %}
+                    <option value="{{ p.id }}">{{ p.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button class="btn btn-primary">Criar Utilizador</button>
+        <a href="{{ url('admin/utilizadores') }}" class="btn btn-secondary">Cancelar</a>
+
+    </form>
+
+</div>
+{% endblock %}

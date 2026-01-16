@@ -1,43 +1,33 @@
-{% extends "layouts/auth.twig" %}
+{% extends "layouts/public.twig" %}
 
 {% block title %}Login{% endblock %}
 
 {% block content %}
 
-<h1 class="auth-title">Login</h1>
+<h1>Login</h1>
 
-<form method="post" action="/login">
+{% if flash %}
+    <div class="alert alert-{{ flash.tipo }} mb-3">
+        {{ flash.mensagem }}
+    </div>
+{% endif %}
+
+<form method="post" action="{{ url('login') }}">
+
     <input type="hidden" name="_csrf" value="{{ csrf }}">
 
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input
-            type="email"
-            name="email"
-            id="email"
-            class="form-control"
-            required
-            autofocus
-            value="{{ old.email ?? '' }}"
-        >
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" required autofocus>
     </div>
 
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input
-            type="password"
-            name="password"
-            id="password"
-            class="form-control"
-            required
-        >
+    <div class="mb-3">
+        <label class="form-label">Senha</label>
+        <input type="password" name="password" class="form-control" required>
     </div>
 
-    <button type="submit" class="btn btn-primary">Entrar</button>
+    <button class="btn btn-primary w-100">Entrar</button>
 
-    <div class="auth-links">
-        <a href="/recuperar">Esqueci-me da password</a>
-    </div>
 </form>
 
 {% endblock %}

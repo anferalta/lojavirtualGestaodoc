@@ -3,35 +3,18 @@
 namespace App\Controllers\Admin;
 
 use App\Core\BaseController;
-use App\Models\Utilizador;
-use App\Models\Perfil;
 use App\Core\Helpers;
 use App\Core\Sessao;
+use App\Models\Utilizador;
+use App\Models\Perfil;
 
 class UtilizadoresAdminController extends BaseController
 {
     public function index()
     {
         $pagina = $_GET['p'] ?? 1;
-        $nome = $_GET['nome'] ?? null;
-        $email = $_GET['email'] ?? null;
-        $estado = $_GET['estado'] ?? null;
 
-        $query = new Utilizador();
-
-        if ($nome) {
-            $query->where('nome', 'LIKE', "%$nome%");
-        }
-
-        if ($email) {
-            $query->where('email', 'LIKE', "%$email%");
-        }
-
-        if ($estado !== null && $estado !== '') {
-            $query->where('estado', '=', $estado);
-        }
-
-        $utilizadores = $query
+        $utilizadores = (new Utilizador())
             ->orderBy('id', 'DESC')
             ->paginate(10, $pagina);
 
@@ -41,10 +24,7 @@ class UtilizadoresAdminController extends BaseController
         return $this->view('admin/utilizadores/index', [
             'utilizadores' => $utilizadores,
             'pagina' => $pagina,
-            'total_paginas' => $total_paginas,
-            'nome' => $nome,
-            'email' => $email,
-            'estado' => $estado
+            'total_paginas' => $total_paginas
         ]);
     }
 
@@ -58,10 +38,16 @@ class UtilizadoresAdminController extends BaseController
     {
         $dados = $_POST;
 
+        // verificar email duplicado
+        if ((new Utilizador())->findBy('email', $dados['email'])) {
+            Sessao::flash('erro', 'O email já está registado.');
+            Helpers::redirect('admin/utilizadores/criar');
+            return;
+        }
+
         $dados['estado'] = 1;
 
-        $utilizador = new Utilizador();
-        $id = $utilizador->create($dados);
+        (new Utilizador())->create($dados);
 
         Sessao::flash('sucesso', 'Utilizador criado com sucesso.');
         Helpers::redirect('admin/utilizadores');

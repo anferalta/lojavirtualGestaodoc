@@ -1,0 +1,33 @@
+{% extends "layouts/admin.twig" %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h1 class="h3 mb-4">Editar Perfil</h1>
+
+    <form method="post" action="{{ url('admin/perfis/editar/' ~ perfil.id) }}">
+
+        <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input type="text" name="nome" class="form-control" value="{{ perfil.nome }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Slug</label>
+            <input type="text" name="slug" class="form-control" value="{{ perfil.slug }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descrição</label>
+            <textarea name="descricao" class="form-control">{{ perfil.descricao }}</textarea>
+        </div>
+
+        <button class="btn btn-primary">Guardar Alterações</button>
+        <a href="{{ url('admin/perfis') }}" class="btn btn-secondary">Cancelar</a>
+
+    </form>
+
+</div>
+{% endblock %}

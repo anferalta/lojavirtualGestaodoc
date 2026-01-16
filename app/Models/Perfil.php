@@ -18,8 +18,6 @@ class Perfil extends Model
     protected array $permitidos = [
         'nome',
         'slug',
-        'descricao',
-        'created_at',
-        'updated_at'
+        'descricao'
     ];
 }

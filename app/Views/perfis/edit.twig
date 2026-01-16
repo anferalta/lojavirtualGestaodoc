@@ -1,0 +1,25 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+<h1>Editar Perfil</h1>
+
+<form method="POST" action="/perfis/update/{{ perfil.id }}">
+    <div class="mb-3">
+        <label>Nome</label>
+        <input type="text" name="nome" class="form-control" value="{{ perfil.nome }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Slug</label>
+        <input type="text" name="slug" class="form-control" value="{{ perfil.slug }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Descrição</label>
+        <textarea name="descricao" class="form-control">{{ perfil.descricao }}</textarea>
+    </div>
+
+    <button class="btn btn-primary">Atualizar</button>
+    <a href="/perfis" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

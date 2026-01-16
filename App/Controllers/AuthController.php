@@ -7,58 +7,51 @@ use App\Core\BaseController;
 use App\Core\Helpers;
 use App\Core\Sessao;
 
-class AuthController extends BaseController {
-
-    public function showLogin(): void {
-        $data = [
-            'csrf' => Sessao::csrf(),
-        ];
-
-        $this->view('auth/login', $data);
+class AuthController extends BaseController
+{
+    public function showLogin(): void
+    {
+        // O token já é injetado globalmente pelo BaseController
+        $this->view('auth/login');
     }
 
-    public function loginForm(): void {
-        // Se já estiver autenticado, redireciona para o dashboard
-        if (\App\Core\Auth::check()) {
-            \App\Core\Helpers::redirect('/dashboard');
-        }
-
-        $data = [
-            'csrf' => \App\Core\Sessao::csrf(),
-        ];
-
-        $this->view('auth/login', $data);
-    }
-
-    public function login(): void {
+    public function login(): void
+    {
         Sessao::start();
 
+        // Validar CSRF
         $token = $_POST['_csrf'] ?? '';
         if (!Sessao::validarCsrf($token)) {
-            Sessao::flash('error', 'Token CSRF inválido');
+            Sessao::flash('erro', 'Token CSRF inválido');
             Helpers::redirect('/login');
+            return;
         }
 
         $email = trim($_POST['email'] ?? '');
         $password = (string) ($_POST['password'] ?? '');
 
         if ($email === '' || $password === '') {
-            Sessao::flash('error', 'Preencha todos os campos');
+            Sessao::flash('erro', 'Preencha todos os campos');
             Helpers::redirect('/login');
+            return;
         }
 
         if (!Auth::attempt($email, $password)) {
-            Sessao::flash('error', 'Credenciais inválidas');
+            Sessao::flash('erro', 'Credenciais inválidas');
             Helpers::redirect('/login');
+            return;
         }
 
-        Sessao::flash('success', 'Login efetuado com sucesso');
+        Sessao::flash('sucesso', 'Login efetuado com sucesso');
+
+        // Regenerar token APÓS login
         Sessao::regenerateCsrf();
 
         Helpers::redirect('/painel');
     }
 
-    public function logout(): void {
+    public function logout(): void
+    {
         Auth::logout();
         Sessao::flash('info', 'Sessão terminada');
         Helpers::redirect('/login');

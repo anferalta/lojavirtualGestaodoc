@@ -3,205 +3,69 @@
 namespace App\Controllers;
 
 use App\Core\BaseController;
-use App\Core\Conexao;
-use App\Core\Usuario;
-use App\Core\Validator;
-use App\Core\Sessao;
-use App\Core\Helpers;
+use App\Models\Utilizador;
+use App\Models\Perfil;
 
 class UtilizadoresController extends BaseController
 {
-    private Usuario $userModel;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->userModel = new Usuario(Conexao::getInstancia());
-    }
-
     public function index(): void
     {
-        $pagina = max((int) ($_GET['pagina'] ?? 1), 1);
-        $limite = 15;
-        $offset = ($pagina - 1) * $limite;
-
-        echo $this->twig->render('utilizadores/index.twig', [
-            'utilizadores' => $this->userModel->paginate($limite, $offset),
-            'pagina'       => $pagina,
-            'totalPaginas' => ceil($this->userModel->count() / $limite),
-        ]);
+        $utilizadores = (new Utilizador())->all();
+        $this->view('utilizadores/index', compact('utilizadores'));
     }
 
-    public function show(int $id): void
+    public function create(): void
     {
-        $user = $this->userModel->find($id);
-
-        if (!$user) {
-            Sessao::flash('Utilizador não encontrado.', 'danger');
-            return Helpers::redirecionar('/utilizadores');
-        }
-
-        echo $this->twig->render('utilizadores/show.twig', [
-            'user' => $user,
-        ]);
-    }
-
-    public function criar(): void
-    {
-        echo $this->twig->render('utilizadores/form.twig', [
-            'acao'        => 'criar',
-            'user'        => null,
-            'form_old'    => [],
-            'form_errors' => [],
-            'csrf'        => Sessao::csrf(),
-        ]);
+        $perfis = (new Perfil())->all();
+        $this->view('utilizadores/create', compact('perfis'));
     }
 
     public function store(): void
     {
-        if (!Sessao::validarCsrf($_POST['_csrf'] ?? '')) {
-            Sessao::flash('Token CSRF inválido.', 'danger');
-            return Helpers::redirecionar('/utilizadores/criar');
-        }
+        $dados = [
+            'nome' => trim($_POST['nome']),
+            'email' => trim($_POST['email']),
+            'perfil_id' => $_POST['perfil_id'],
+            'password' => password_hash($_POST['password'], PASSWORD_DEFAULT)
+        ];
 
-        $nome   = trim($_POST['nome'] ?? '');
-        $email  = trim($_POST['email'] ?? '');
-        $senha  = $_POST['senha'] ?? '';
-        $estado = $_POST['estado'] ?? '1';
-        $nivel  = $_POST['nivel'] ?? '1';
+        (new Utilizador())->insert($dados);
 
-        $v = new Validator();
-
-        $v->required('nome', $nome, 'O nome é obrigatório.');
-        $v->min('nome', $nome, 3, 'O nome deve ter pelo menos 3 caracteres.');
-
-        $v->required('email', $email, 'O email é obrigatório.');
-        $v->email('email', $email, 'O email não é válido.');
-        $v->unique('email', $email, Conexao::getInstancia(), 'utilizadores', 'email', 'Já existe um utilizador com este email.');
-
-        $v->required('senha', $senha, 'A senha é obrigatória.');
-        $v->min('senha', $senha, 6, 'A senha deve ter pelo menos 6 caracteres.');
-
-        $v->in('estado', $estado, ['0', '1'], 'Estado inválido.');
-
-        if ($v->hasErrors()) {
-            echo $this->twig->render('utilizadores/form.twig', [
-                'acao'        => 'criar',
-                'user'        => null,
-                'form_old'    => compact('nome', 'email', 'estado', 'nivel'),
-                'form_errors' => $v->getErrors(),
-                'csrf'        => Sessao::csrf(),
-            ]);
-            return;
-        }
-
-        $this->userModel->create([
-            'nome'   => $nome,
-            'email'  => $email,
-            'senha'  => password_hash($senha, PASSWORD_DEFAULT),
-            'nivel'  => (int) $nivel,
-            'estado' => (int) $estado,
-        ]);
-
-        Sessao::flash('Utilizador criado com sucesso.', 'success');
-        Helpers::redirecionar('/utilizadores');
+        flash('success', 'Utilizador criado.');
+        redirect('/utilizadores');
     }
 
-    public function editar(int $id): void
+    public function edit(int $id): void
     {
-        $user = $this->userModel->find($id);
+        $utilizador = (new Utilizador())->find($id);
+        $perfis = (new Perfil())->all();
 
-        if (!$user) {
-            Sessao::flash('Utilizador não encontrado.', 'danger');
-            return Helpers::redirecionar('/utilizadores');
-        }
-
-        echo $this->twig->render('utilizadores/form.twig', [
-            'acao'        => 'editar',
-            'user'        => $user,
-            'form_old'    => [],
-            'form_errors' => [],
-            'csrf'        => Sessao::csrf(),
-        ]);
+        $this->view('utilizadores/edit', compact('utilizador', 'perfis'));
     }
 
     public function update(int $id): void
     {
-        if (!Sessao::validarCsrf($_POST['_csrf'] ?? '')) {
-            Sessao::flash('Token CSRF inválido.', 'danger');
-            return Helpers::redirecionar('/utilizadores/editar/' . $id);
-        }
-
-        $user = $this->userModel->find($id);
-
-        if (!$user) {
-            Sessao::flash('Utilizador não encontrado.', 'danger');
-            return Helpers::redirecionar('/utilizadores');
-        }
-
-        $nome       = trim($_POST['nome'] ?? '');
-        $email      = trim($_POST['email'] ?? '');
-        $estado     = $_POST['estado'] ?? '1';
-        $nivel      = $_POST['nivel'] ?? '1';
-        $novaSenha  = $_POST['nova_senha'] ?? '';
-        $novaSenha2 = $_POST['nova_senha2'] ?? '';
-
-        $v = new Validator();
-
-        $v->required('nome', $nome, 'O nome é obrigatório.');
-        $v->min('nome', $nome, 3, 'O nome deve ter pelo menos 3 caracteres.');
-
-        $v->required('email', $email, 'O email é obrigatório.');
-        $v->email('email', $email, 'O email não é válido.');
-        $v->unique('email', $email, Conexao::getInstancia(), 'utilizadores', 'email', 'Já existe um utilizador com este email.', $user->id);
-
-        $v->in('estado', $estado, ['0', '1'], 'Estado inválido.');
-
-        if ($novaSenha !== '') {
-            $v->min('nova_senha', $novaSenha, 6, 'A nova senha deve ter pelo menos 6 caracteres.');
-            $v->match('nova_senha', $novaSenha, $novaSenha2, 'As senhas não coincidem.');
-        }
-
-        if ($v->hasErrors()) {
-            echo $this->twig->render('utilizadores/form.twig', [
-                'acao'        => 'editar',
-                'user'        => $user,
-                'form_old'    => compact('nome', 'email', 'estado', 'nivel'),
-                'form_errors' => $v->getErrors(),
-                'csrf'        => Sessao::csrf(),
-            ]);
-            return;
-        }
-
         $dados = [
-            'nome'   => $nome,
-            'email'  => $email,
-            'estado' => (int) $estado,
-            'nivel'  => (int) $nivel,
+            'nome' => trim($_POST['nome']),
+            'email' => trim($_POST['email']),
+            'perfil_id' => $_POST['perfil_id'],
         ];
 
-        if ($novaSenha !== '') {
-            $dados['senha'] = password_hash($novaSenha, PASSWORD_DEFAULT);
+        if (!empty($_POST['password'])) {
+            $dados['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
         }
 
-        $this->userModel->update($id, $dados);
+        (new Utilizador())->update($dados, "id = :id", [':id' => $id]);
 
-        Sessao::flash('Utilizador atualizado com sucesso.', 'success');
-        Helpers::redirecionar('/utilizadores');
+        flash('success', 'Utilizador atualizado.');
+        redirect('/utilizadores');
     }
 
     public function delete(int $id): void
     {
-        $user = $this->userModel->find($id);
+        (new Utilizador())->delete($id);
 
-        if (!$user) {
-            Sessao::flash('Utilizador não encontrado.', 'danger');
-            return Helpers::redirecionar('/utilizadores');
-        }
-
-        $this->userModel->delete($id);
-
-        Sessao::flash('Utilizador eliminado com sucesso.', 'success');
-        Helpers::redirecionar('/utilizadores');
+        flash('success', 'Utilizador eliminado.');
+        redirect('/utilizadores');
     }
 }

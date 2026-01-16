@@ -9,16 +9,15 @@ use App\Core\Database;
 abstract class Model {
 
     protected static string $tabela;
-    protected array $dados = [];
-    protected ?string $erro = null;
     protected array $parametros = [];
     protected string $where = '';
     protected string $ordem = '';
     protected string $limite = '';
     protected string $offset = '';
+    protected ?string $erro = null;
 
     public function __construct() {
-        // Construtor limpo — sem Mensagem
+        // Construtor limpo
     }
 
     /* ============================================================
@@ -47,6 +46,13 @@ abstract class Model {
     }
 
     public function findBy(string $campo, $valor): ?object {
+        // limpar estado interno
+        $this->where = '';
+        $this->ordem = '';
+        $this->limite = '';
+        $this->offset = '';
+        $this->parametros = [];
+
         $query = "SELECT * FROM " . static::$tabela . " WHERE {$campo} = :valor LIMIT 1";
         $stmt = Database::getConexao()->prepare($query);
         $stmt->execute([':valor' => $valor]);
@@ -54,28 +60,10 @@ abstract class Model {
         return $stmt->fetchObject(static::class) ?: null;
     }
 
-    public function where(string $campo, string $operador, $valor): self {
-        $this->where = " WHERE {$campo} {$operador} :where";
-        $this->parametros[':where'] = $valor;
-        return $this;
-    }
-
-    public function first(): ?object {
-        $query = "SELECT * FROM " . static::$tabela
-                . $this->where
-                . $this->ordem
-                . " LIMIT 1";
-
-        $stmt = Database::getConexao()->prepare($query);
-        $stmt->execute($this->parametros);
-
-        return $stmt->fetchObject(static::class) ?: null;
-    }
-
     public static function count() {
         $tabela = static::$tabela;
         $sql = "SELECT COUNT(*) AS total FROM {$tabela}";
-        $stmt = Conexao::getInstancia()->query($sql);
+        $stmt = Database::getConexao()->query($sql);
         $row = $stmt->fetch();
 
         return is_array($row) ? ($row['total'] ?? 0) : ($row->total ?? 0);
@@ -84,10 +72,49 @@ abstract class Model {
     public static function countWhere($condicao) {
         $tabela = static::$tabela;
         $sql = "SELECT COUNT(*) AS total FROM {$tabela} WHERE {$condicao}";
-        $stmt = Conexao::getInstancia()->query($sql);
+        $stmt = Database::getConexao()->query($sql);
         $row = $stmt->fetch();
 
         return is_array($row) ? ($row['total'] ?? 0) : ($row->total ?? 0);
+    }
+
+    /* ============================================================
+     *  WHERE / ORDER / LIMIT / PAGINAÇÃO
+     * ============================================================ */
+
+    public function where(string $campo, string $operador, $valor): self {
+        $this->where = " WHERE {$campo} {$operador} :where";
+        $this->parametros[':where'] = $valor;
+        return $this;
+    }
+
+    public function orderBy(string $campo, string $direcao = 'ASC'): self {
+        $this->ordem = " ORDER BY {$campo} {$direcao}";
+        return $this;
+    }
+
+    public function limit(int $limite): self {
+        $this->limite = " LIMIT {$limite}";
+        return $this;
+    }
+
+    public function offset(int $offset): self {
+        $this->offset = " OFFSET {$offset}";
+        return $this;
+    }
+
+    public function paginate(int $porPagina, int $pagina = 1): array {
+        $offset = ($pagina - 1) * $porPagina;
+
+        $query = "SELECT * FROM " . static::$tabela
+                . $this->where
+                . $this->ordem
+                . " LIMIT {$porPagina} OFFSET {$offset}";
+
+        $stmt = Database::getConexao()->prepare($query);
+        $stmt->execute($this->parametros);
+
+        return $stmt->fetchAll(PDO::FETCH_CLASS, static::class);
     }
 
     /* ============================================================
@@ -139,39 +166,6 @@ abstract class Model {
     }
 
     /* ============================================================
-     *  ORDENAÇÃO E PAGINAÇÃO
-     * ============================================================ */
-
-    public function orderBy(string $campo, string $direcao = 'ASC'): self {
-        $this->ordem = " ORDER BY {$campo} {$direcao}";
-        return $this;
-    }
-
-    public function limit(int $limite): self {
-        $this->limite = " LIMIT {$limite}";
-        return $this;
-    }
-
-    public function offset(int $offset): self {
-        $this->offset = " OFFSET {$offset}";
-        return $this;
-    }
-
-    public function paginate(int $porPagina, int $pagina = 1): array {
-        $offset = ($pagina - 1) * $porPagina;
-
-        $query = "SELECT * FROM " . static::$tabela
-                . $this->where
-                . $this->ordem
-                . " LIMIT {$porPagina} OFFSET {$offset}";
-
-        $stmt = Database::getConexao()->prepare($query);
-        $stmt->execute($this->parametros);
-
-        return $stmt->fetchAll(PDO::FETCH_CLASS, static::class);
-    }
-
-    /* ============================================================
      *  UTILIDADES
      * ============================================================ */
 
@@ -181,21 +175,5 @@ abstract class Model {
 
     public function erro(): ?string {
         return $this->erro;
-    }
-
-    public function avatarUrl(): string {
-        return $this->avatar ? '/uploads/avatars/' . $this->avatar : '/assets/img/avatar-default.png';
-    }
-
-    public function estadoBadge(): string {
-        return $this->estado == 1 ? '<span class="badge bg-success">Ativo</span>' : '<span class="badge bg-secondary">Inativo</span>';
-    }
-
-    public function perfil() {
-        if (empty($this->perfil_id)) {
-            return null;
-        }
-
-        return (new \App\Models\Perfil())->find((int) $this->perfil_id);
     }
 }

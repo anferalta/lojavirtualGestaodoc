@@ -1,19 +1,33 @@
-{% extends "layouts/painel.twig" %}
+{% extends "layouts/admin.twig" %}
 
-{% block title %}Novo Perfil{% endblock %}
+{% block title %}Criar Perfil{% endblock %}
 
 {% block content %}
+<div class="container mt-4">
 
-<h1 class="page-title">Novo Perfil</h1>
+    <h1 class="h3 mb-4">Criar Perfil</h1>
 
-<form method="post" action="{{ url('/admin/perfis/criar') }}">
-    <div class="form-group">
-        <label for="nome">Nome do Perfil</label>
-        <input type="text" id="nome" name="nome" class="form-control" required>
-    </div>
+    <form method="post" action="{{ url('admin/perfis/criar') }}">
 
-    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
-    <a href="{{ url('/admin/perfis') }}" class="btn btn-light mt-3">Cancelar</a>
-</form>
+        <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input type="text" name="nome" class="form-control" required>
+        </div>
 
+        <div class="mb-3">
+            <label class="form-label">Slug</label>
+            <input type="text" name="slug" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descrição</label>
+            <textarea name="descricao" class="form-control"></textarea>
+        </div>
+
+        <button class="btn btn-primary">Criar Perfil</button>
+        <a href="{{ url('admin/perfis') }}" class="btn btn-secondary">Cancelar</a>
+
+    </form>
+
+</div>
 {% endblock %}

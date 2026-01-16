@@ -1,0 +1,25 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+<h1>Criar Perfil</h1>
+
+<form method="POST" action="/perfis/store">
+    <div class="mb-3">
+        <label>Nome</label>
+        <input type="text" name="nome" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Slug</label>
+        <input type="text" name="slug" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Descrição</label>
+        <textarea name="descricao" class="form-control"></textarea>
+    </div>
+
+    <button class="btn btn-success">Guardar</button>
+    <a href="/perfis" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

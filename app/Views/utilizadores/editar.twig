@@ -1,0 +1,44 @@
+{% extends "layouts/admin.twig" %}
+
+{% block title %}Editar Utilizador{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h1 class="h3 mb-4">Editar Utilizador</h1>
+
+    <form method="post" action="{{ url('admin/utilizadores/editar/' ~ utilizador.id) }}">
+
+        <div class="mb-3">
+            <label class="form-label">Nome</label>
+            <input type="text" name="nome" class="form-control" value="{{ utilizador.nome }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" value="{{ utilizador.email }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Senha (deixe vazio para manter)</label>
+            <input type="password" name="senha" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Perfil</label>
+            <select name="perfil_id" class="form-select" required>
+                {% for p in perfis %}
+                    <option value="{{ p.id }}" {{ p.id == utilizador.perfil_id ? 'selected' : '' }}>
+                        {{ p.nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button class="btn btn-primary">Guardar Alterações</button>
+        <a href="{{ url('admin/utilizadores') }}" class="btn btn-secondary">Cancelar</a>
+
+    </form>
+
+</div>
+{% endblock %}

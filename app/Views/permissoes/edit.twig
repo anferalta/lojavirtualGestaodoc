@@ -1,0 +1,20 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+<h1>Editar Permissão</h1>
+
+<form method="POST" action="/admin/permissoes/update/{{ permissao.id }}">
+    <div class="mb-3">
+        <label>Chave</label>
+        <input type="text" name="chave" class="form-control" value="{{ permissao.chave }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Descrição</label>
+        <textarea name="descricao" class="form-control">{{ permissao.descricao }}</textarea>
+    </div>
+
+    <button class="btn btn-primary">Guardar</button>
+    <a href="/admin/permissoes" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

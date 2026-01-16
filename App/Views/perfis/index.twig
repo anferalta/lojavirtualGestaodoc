@@ -1,31 +1,39 @@
-{% extends "layouts/base.twig" %}
-
-{% block title %}O Meu Perfil{% endblock %}
+{% extends 'layouts/admin.twig' %}
 
 {% block content %}
-<div class="profile-container">
-    <h2>O Meu Perfil</h2>
+<h1>Gestão de Perfis</h1>
 
-    {% for msg in flash %}
-        <div class="alert alert-{{ msg.tipo }}">{{ msg.mensagem }}</div>
-    {% endfor %}
+<a href="/perfis/criar" class="btn btn-primary mb-3">Criar Perfil</a>
 
-    <p><strong>Nome:</strong> {{ user.nome }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Slug</th>
+            <th>Descrição</th>
+            <th>Criado em</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for perfil in perfis %}
+        <tr>
+            <td>{{ perfil.id }}</td>
+            <td>{{ perfil.nome }}</td>
+            <td>{{ perfil.slug }}</td>
+            <td>{{ perfil.descricao }}</td>
+            <td>{{ perfil.created_at }}</td>
+            <td>
+                <a href="/perfis/editar/{{ perfil.id }}" class="btn btn-sm btn-warning">Editar</a>
 
-    <hr>
-
-    <h3>Autenticação 2FA</h3>
-
-    {% if user.two_factor_ativo %}
-        <p>2FA está <strong>ativado</strong>.</p>
-        <form method="post" action="/2fa/desativar">
-            <input type="hidden" name="_csrf" value="{{ csrf }}">
-            <button class="btn btn-danger">Desativar 2FA</button>
-        </form>
-    {% else %}
-        <p>2FA está <strong>desativado</strong>.</p>
-        <a href="/2fa/setup" class="btn btn-primary">Ativar 2FA</a>
-    {% endif %}
-</div>
+                <form action="/perfis/delete/{{ perfil.id }}" method="POST" style="display:inline-block"
+                      onsubmit="return confirm('Tem a certeza que deseja eliminar este perfil?')">
+                    <button class="btn btn-sm btn-danger">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

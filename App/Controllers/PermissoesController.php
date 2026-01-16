@@ -3,72 +3,58 @@
 namespace App\Controllers;
 
 use App\Core\BaseController;
-use App\Models\Perfil;
 use App\Models\Permissao;
-use App\Models\PerfilPermissao;
 
-class PermissoesController extends BaseController {
-
-    public function index(): void {
-        $perfis = (new Perfil())->all();
+class PermissoesController extends BaseController
+{
+    public function index(): void
+    {
         $permissoes = (new Permissao())->all();
-
-        // Obter permissões atribuídas por perfil
-        $perfilPermissoes = (new PerfilPermissao())->allGrouped();
-
-        $this->view('permissoes/index', [
-            'perfis' => $perfis,
-            'permissoes' => $permissoes,
-            'perfilPermissoes' => $perfilPermissoes
-        ]);
+        $this->view('permissoes/index', compact('permissoes'));
     }
 
-    public function update(): void {
-        $perfilId = $_POST['perfil_id'] ?? null;
-        $permissoes = $_POST['permissoes'] ?? [];
+    public function create(): void
+    {
+        $this->view('permissoes/create');
+    }
 
-        if (!$perfilId) {
-            redirect('/permissoes');
-        }
+    public function store(): void
+    {
+        $dados = [
+            'chave' => trim($_POST['chave']),
+            'descricao' => trim($_POST['descricao'])
+        ];
 
-        $perfilPermissaoModel = new PerfilPermissao();
+        (new Permissao())->insert($dados);
 
-        // Permissões antigas
-        $antes = $perfilPermissaoModel->getPermissoesIdsByPerfil($perfilId);
-
-        // Apagar permissões antigas
-        $perfilPermissaoModel->deleteWhere('perfil_id', $perfilId);
-
-        // Inserir novas permissões
-        foreach ($permissoes as $permId) {
-            $perfilPermissaoModel->create([
-                'perfil_id' => $perfilId,
-                'permissao_id' => $permId
-            ]);
-        }
-
-        // Permissões novas
-        $depois = $perfilPermissaoModel->getPermissoesIdsByPerfil($perfilId);
-
-        // Registar auditoria
-        $this->registarAuditoriaPermissoes($perfilId, $antes, $depois);
-
-        flash('success', 'Permissões atualizadas com sucesso.');
+        flash('success', 'Permissão criada com sucesso.');
         redirect('/permissoes');
     }
 
-    private function registarAuditoriaPermissoes(int $perfilId, array $antes, array $depois): void {
-        $utilizadorId = auth()->id(); // ajusta para a tua função auth
+    public function edit(int $id): void
+    {
+        $permissao = (new Permissao())->find($id);
+        $this->view('permissoes/edit', compact('permissao'));
+    }
 
-        $alteracoes = [
-            'antes' => $antes,
-            'depois' => $depois
+    public function update(int $id): void
+    {
+        $dados = [
+            'chave' => trim($_POST['chave']),
+            'descricao' => trim($_POST['descricao'])
         ];
 
-        (new \App\Models\AuditoriaPermissoes())->create([
-            'utilizador_id' => $utilizadorId,
-            'perfil_id' => $perfilId,
-            'alteracoes' => json_encode($alteracoes, JSON_UNESCAPED_UNICODE)
-        ]);
+        (new Permissao())->update($dados, "id = :id", [':id' => $id]);
+
+        flash('success', 'Permissão atualizada.');
+        redirect('/permissoes');
+    }
+
+    public function delete(int $id): void
+    {
+        (new Permissao())->delete($id);
+
+        flash('success', 'Permissão eliminada.');
+        redirect('/permissoes');
     }
 }

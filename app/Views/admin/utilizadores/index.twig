@@ -3,92 +3,83 @@
 {% block title %}Gestão de Utilizadores{% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
+<div class="container mt-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3">Gestão de Utilizadores</h1>
-            <a href="{{ url('admin/utilizadores/criar') }}" class="btn btn-primary">Novo Utilizador</a>
-        </div>
-
-        <!-- FILTROS -->
-        <form method="get" class="row g-3 mb-4">
-            <div class="col-md-3">
-                <input type="text" name="nome" class="form-control" placeholder="Nome" value="{{ nome }}">
-            </div>
-
-            <div class="col-md-3">
-                <input type="text" name="email" class="form-control" placeholder="Email" value="{{ email }}">
-            </div>
-
-            <div class="col-md-3">
-                <select name="estado" class="form-select">
-                    <option value="">Estado</option>
-                    <option value="1" {{ estado == '1' ? 'selected' }}>Ativo</option>
-                    <option value="0" {{ estado == '0' ? 'selected' }}>Inativo</option>
-                </select>
-            </div>
-
-            <div class="col-md-3">
-                <button class="btn btn-primary w-100">Filtrar</button>
-            </div>
-        </form>
-
-        <!-- TABELA -->
-        <div class="card shadow-sm">
-            <div class="card-body">
-
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Avatar</th>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Email</th>
-                            <th>Perfil</th>
-                            <th>Estado</th>
-                            <th class="text-end">Ações</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for u in utilizadores %}
-                            <tr>
-                                <td>
-                                    <img src="{{ u.avatarUrl() }}" class="rounded-circle" width="40" height="40">
-                                </td>
-                                <td>{{ u.id }}</td>
-                                <td>{{ u.nome }}</td>
-                                <td>{{ u.email }}</td>
-                                {% set perfil = u.perfil() %}
-                                <td>{{ perfil ? perfil.nome : '—' }}</td>
-                                <td>{{ u.estadoBadge()|raw }}</td>
-                                <td class="text-end">
-                                    <a href="{{ url('admin/utilizadores/editar/' ~ u.id) }}" class="btn btn-sm btn-warning">Editar</a>
-                                    <a href="{{ url('admin/utilizadores/apagar/' ~ u.id) }}"
-                                       class="btn btn-sm btn-danger"
-                                       onclick="return confirm('Tem a certeza que deseja apagar?')">
-                                        Apagar
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-
-                </table>
-
-                <!-- PAGINAÇÃO -->
-                <nav>
-                    <ul class="pagination justify-content-center">
-                        {% for p in 1..total_paginas %}
-                            <li class="page-item {{ p == pagina ? 'active' : '' }}">
-                                <a class="page-link" href="?p={{ p }}">{{ p }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </nav>
-
-            </div>
-        </div>
-
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Gestão de Utilizadores</h1>
+        <a href="{{ url('admin/utilizadores/criar') }}" class="btn btn-primary">Novo Utilizador</a>
     </div>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="nome" class="form-control" placeholder="Nome" value="{{ nome }}">
+        </div>
+
+        <div class="col-md-3">
+            <input type="text" name="email" class="form-control" placeholder="Email" value="{{ email }}">
+        </div>
+
+        <div class="col-md-3">
+            <select name="estado" class="form-select">
+                <option value="">Estado</option>
+                <option value="1" {{ estado == '1' ? 'selected' }}>Ativo</option>
+                <option value="0" {{ estado == '0' ? 'selected' }}>Inativo</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <button class="btn btn-primary w-100">Filtrar</button>
+        </div>
+    </form>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Avatar</th>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Perfil</th>
+                        <th>Estado</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for u in utilizadores %}
+                        {% set perfil = u.perfil() %}
+                        <tr>
+                            <td><img src="{{ u.avatarUrl() }}" class="rounded-circle" width="40" height="40"></td>
+                            <td>{{ u.id }}</td>
+                            <td>{{ u.nome }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>{{ perfil ? perfil.nome : '—' }}</td>
+                            <td>{{ u.estadoBadge()|raw }}</td>
+                            <td class="text-end">
+                                <a href="{{ url('admin/utilizadores/editar/' ~ u.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                                <a href="{{ url('admin/utilizadores/apagar/' ~ u.id) }}" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Tem a certeza que deseja apagar?')">Apagar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% for p in 1..total_paginas %}
+                        <li class="page-item {{ p == pagina ? 'active' : '' }}">
+                            <a class="page-link" href="?p={{ p }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+
+</div>
 {% endblock %}

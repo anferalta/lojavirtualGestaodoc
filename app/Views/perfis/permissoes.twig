@@ -1,0 +1,21 @@
+{% extends 'layouts/admin.twig' %}
+
+{% block content %}
+<h1>Permissões do Perfil: {{ perfil.nome }}</h1>
+
+<form method="POST">
+    <div class="row">
+        {% for p in permissoes %}
+        <div class="col-md-4 mb-2">
+            <label>
+                <input type="checkbox" name="permissoes[]" value="{{ p.id }}"
+                       {% if p.id in permissoesDoPerfil %}checked{% endif %}>
+                {{ p.chave }} — {{ p.descricao }}
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button class="btn btn-success mt-3">Guardar</button>
+</form>
+{% endblock %}
